@@ -172,5 +172,20 @@ describe('duck-type', function() {
             assert.equal(duck({name:'hello'})
                 .is({name:String, age:Number}), false);       
         });
+
+        it('{name:{first:String, second:String}, age: Number}, age missing', function() {
+            assert.equal(duck({
+                name: {
+                    first: 'shen',
+                    last: 'yu'
+                },
+                age :1
+            }).is({
+                name:{
+                    first:String, 
+                    last:String
+                }, 
+                age: Number}), true);    
+        });
     });
 });
