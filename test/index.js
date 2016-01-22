@@ -41,6 +41,13 @@ describe('duck-type', function() {
             assert.equal(duck(123).is('undefined'), false);
             assert.equal(duck(0).is('undefined'), false);
         });
+
+        it('function', function () {
+            assert.equal(duck(function(){}).is('function'), true);
+            assert.equal(duck(function(){}).is('object'), false);
+            assert.equal(duck(123).is('function'), false);
+            assert.equal(duck(0).is('function'), false);
+        });
   	});
 
     describe('build-in object', function () {
@@ -77,6 +84,13 @@ describe('duck-type', function() {
             assert.equal(duck(undefined).is(Object), false);
         });
 
+        it('Function', function () {
+            assert.equal(duck(function(){}).is(Function), true);
+            assert.equal(duck(function(){}).is(Object), false);
+            assert.equal(duck(123).is('function'), false);
+            assert.equal(duck(0).is('function'), false);
+        });
+
         it('Date', function () {
             assert.equal(duck(new Date()).is(Date), true);
         });
@@ -85,9 +99,13 @@ describe('duck-type', function() {
             assert.equal(duck([]).is(Array), true);
             assert.equal(duck({}).is(Object), true);
         });
+
+        it('RegExp', function () {
+            assert.equal(duck(/(?:)/).is(RegExp), true);
+        });
     });
 
-     describe('Customize object', function () {
+    describe('Customize object', function () {
         it('base', function () {
             function Person() {}
             var p = new Person();
@@ -96,6 +114,9 @@ describe('duck-type', function() {
             //assert.equal(duck(p).is(Object), true);
         });
 
+        /**
+        * have not implemented yet.
+        */
         xit('inherited', function () {
             function Person() {}
             function Student() {}
@@ -106,5 +127,40 @@ describe('duck-type', function() {
             assert.equal(duck(s).is('object'), true);
             assert.equal(duck(s).is(Object), true);
         });
-     }); 
+    });
+
+    describe('test many object', function () {
+        it('test many object as arguments', function() {
+            assert.equal(duck(1,'hello',true).are(Number,String,Boolean), true);
+            assert.equal(duck(1,'hello',true).are(Number,String), false);
+
+            assert.equal(duck(1,'hello',true).is(Number), true);
+            assert.equal(duck(1).are(Number), true);
+        });
+    });
+
+    describe('verify by callback function', function () {
+        it('callback function', function() {
+            assert.equal(duck(1).is(function(){
+                return this.value === 1;
+            }), true);
+
+             assert.equal(duck(1).is(function(){
+                return this.value !== 1;
+            }), false);
+            
+        });
+    });
+
+    describe('inline object define', function () {
+        it('{}', function() {
+            assert.equal(duck({}).is({}), true);
+            assert.equal(duck({name:'test'}).is({}), true);
+            assert.equal(duck('hello').is({}), false);        
+        });
+        
+        it('{name:String}', function() {
+            assert.equal(duck({name:'hello'}).is({name:String}), true);       
+        });
+    });
 });
