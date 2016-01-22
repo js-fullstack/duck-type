@@ -39,19 +39,16 @@ Duck.prototype = {
 				return type.call(this);
 			}
 		} else if(duck(type).is(Object)) {
-			if(Object.keys(type).length === 0) {
-				return duck(this.value).is(Object);
-			} else {
-				return duck(this.value).is(Object) && (function(){
-					var i=0, keys = Object.keys(type).length, len = keys.length;
-					for(i; i++; i<len) {
-						if(!duck(this.value[keys[i]]).is(type[keys[i]])){
-							return false;
-						};
-					}
-					return true;
-				})();
-			}
+			var self = this;
+			return duck(this.value).is(Object) && (function(){
+				var i=0, keys = Object.keys(type), len = keys.length;
+				for(i; i<len; i++) {
+					if(!duck(self.value[keys[i]]).is(type[keys[i]])){
+						return false;
+					};
+				}
+				return true;
+			})();
 		} else {
 			return false;
 		}	

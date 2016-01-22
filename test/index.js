@@ -158,9 +158,19 @@ describe('duck-type', function() {
             assert.equal(duck({name:'test'}).is({}), true);
             assert.equal(duck('hello').is({}), false);        
         });
-        
+
         it('{name:String}', function() {
             assert.equal(duck({name:'hello'}).is({name:String}), true);       
+        });
+
+        it('{name:String, age: Number}', function() {
+            assert.equal(duck({name:'hello',age:5})
+                .is({name:String, age:Number}), true);       
+        });
+
+        it('{name:String, age: Number}, age missing', function() {
+            assert.equal(duck({name:'hello'})
+                .is({name:String, age:Number}), false);       
         });
     });
 });
