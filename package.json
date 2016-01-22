@@ -1,0 +1,32 @@
+{
+  "name": "duck-type",
+  "version": "0.0.2",
+  "description": "Duck Type System",
+  "main": "duck-type.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/js-fullstack/duck-type"
+  },
+  "keywords": [
+    "duck",
+    "type",
+    "interface",
+    "define",
+    "verify"
+  ],
+  "author": "Shen Yu <shenyu1997@gmail.com> (https://github.com/shenyu1997)",
+  "license": [{
+    "type":"Apache License",
+    "url":"http://www.apache.org/licenses/LICENSE-2.0"
+    }],
+  "bugs": {
+    "url": "https://github.com/js-fullstack/duck-type/issues"
+  },
+  "homepage": "https://github.com/js-fullstack/duck-type",
+  "devDependencies": {
+    "mocha": "^2.3.4"
+  }
+}
