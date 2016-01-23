@@ -313,6 +313,26 @@ describe('duck-type', function() {
         });
     });
 
+    describe('inline define, combine [], {}, function(){}',function() {
+        it('combine [{}]', function() {
+            assert.equal(duck([1,{name:'test'}]).is([Number,{name:String}]), true);
+        });
+        it('combine [{[]}]', function() {
+            assert.equal(duck([1,{name:'test',list:[1,2,3]}]).is([Number,{name:String, list:[Number]}]), true);
+        });
+        it('combine {[{}]}', function() {
+            assert.equal(duck({name:'foo',list:[{x:10,y:20},{x:1,y:2}]}).is({name:String, list:[{x:Number, y:Number}]}), true);
+        });
+        it('combine {function(){}}', function() {
+            assert.equal(duck({name:'foo', age:2}).is({name:String, age:function(){ return this.value > 0 ;}}),true);
+            assert.equal(duck({name:'foo', age:2}).is({name:String, age:function(){ return this.value > 10 ;}}),false);
+        });
+        it('combine [function(){}]', function() {
+            assert.equal(duck([2,4]).is([function(){ return this.value % 2 === 0;}]), true);
+            assert.equal(duck([1,2]).is([function(){ return this.value % 2 === 0;}]), false);
+        });
+    });
+
     describe('type define', function () {
         it('happy path: Short', function() {
             //define type Short
