@@ -173,7 +173,7 @@ describe('duck-type', function() {
                 .is({name:String, age:Number}), false);       
         });
 
-        it('{name:{first:String, second:String}, age: Number}, age missing', function() {
+        it('{name:{first:String, second:String}, age: Number}', function() {
             assert.equal(duck({
                 name: {
                     first: 'shen',
@@ -185,7 +185,86 @@ describe('duck-type', function() {
                     first:String, 
                     last:String
                 }, 
-                age: Number}), true);    
+                age: Number}), true);
+
+            assert.equal(duck({
+                name: {
+                    first: 'shen',
+                    last: '1'
+                },
+                age :1
+            }).is({
+                name:{
+                    first:String, 
+                    last:Number
+                }, 
+                age: Number}), false);
+        });
+
+        it('{name:{first:String, second:String}, age: Number, action{callback:Function}}', function() {
+            assert.equal(duck({
+                name: {
+                    first: 'shen',
+                    last: 'yu'
+                },
+                age :1,
+                action: {
+                    callback: function(r) {}
+                }
+            }).is({
+                name:{
+                    first:String, 
+                    last:String
+                }, 
+                age: function() {return this.value === 1},
+                action: {
+                    callback: Function
+                }
+            }), true);
+
+            assert.equal(duck({
+                name: {
+                    first: 'shen',
+                    last: 'yu'
+                },
+                age :1,
+                action: {
+                    callback: function(r) {}
+                }
+            }).is({
+                name:{
+                    first:String, 
+                    last:String
+                }, 
+                age: function() {return this.value !== 1},
+                action: {
+                    callback: Function
+                }
+            }), false);
+        });
+
+        it('multi arguments combine inline object', function() {
+            assert.equal(duck('peter',{
+                config:{
+                    host: '192.168.0.1',
+                    port: 1234
+                },
+                doGet: function(){},
+                doPost: function(){}
+            },function(r){
+                console.log(r);
+            }).are(
+                String,
+                {
+                    config :{
+                        host: String,
+                        port: Number
+                    },
+                    doGet: Function,
+                    doPost:Function
+                },
+                Function
+            ),true);
         });
     });
 });
