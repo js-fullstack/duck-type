@@ -417,4 +417,8 @@ describe('duck-type', function() {
         });
 
     });
+
+    xdescribe('or, and', function() {
+
+    });
 });
