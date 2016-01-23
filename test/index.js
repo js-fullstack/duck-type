@@ -266,5 +266,69 @@ describe('duck-type', function() {
                 Function
             ),true);
         });
+
+        it('multi arguments combine inline object 2', function() {
+            assert.equal(duck('peter',{
+                config:{
+                    host: '192.168.0.1',
+                    port: 1234
+                },
+                doGet: function(){},
+                doPost: function(){}
+            },function(r){
+                console.log(r);
+            }).are(
+                String,
+                Object,
+                Function
+            ),true);
+        });
+    });
+
+    describe('type define', function () {
+        it('luck path: Short', function() {
+            //define type Short
+            duck.type('Short',function() {
+                return duck(this.value).is(Number) && 
+                    this.value % 1 === 0 &&
+                    this.value <= 65536 &&
+                    this.value > -65535
+            });
+
+            assert.equal(duck(1232).is('Short'), true);
+            assert.equal(duck(1232).is(duck.type.Short), true);
+
+            assert.equal(duck(65537).is('Short'), false);
+            assert.equal(duck('').is('Short'), false);
+            assert.equal(duck(true).is('Short'), false);
+        });
+
+        it('define Customize type, and use it as properity of Object', function() {
+            //define type Short
+            duck.type('Short',function() {
+                return duck(this.value).is(Number) && 
+                    this.value % 1 === 0 &&
+                    this.value <= 65536 &&
+                    this.value > -65535
+            });
+
+            duck.type('Person',{
+                name: String,
+                salary: 'Short'
+            });
+
+            var p1 = {
+                name: 'peter',
+                salary: 1234
+            };
+
+            var p2 = {
+                name: 'huang',
+                salary:1234567
+            }
+
+            assert.equal(duck(p1).is('Person'), true);
+            assert.equal(duck(p2).is('Person'), false);
+        });
     });
 });

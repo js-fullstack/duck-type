@@ -7,26 +7,40 @@ function duck () {
 	return d;
 };
 
+/****************************************************************
+* Type Collection 
+*****************************************************************/
+duck.type = function(name, define) {
+	if(typeof define === 'function') {
+		duck.type[name] = define;	
+	} else {
+		duck.type[name] = function() {
+			return duck(this.value).is(define);
+		}
+	}
+}
+
 var _buildIn = ['string','number','boolean','object','undefined','function'];
 
-function testBuildIn(type) {
+function validateBuildIn(type) {
 	return function() {
 		return typeof this.value === type;
 	}
 }
 
-var _allTypes = {};
-
 _buildIn.forEach(function(type){
-	_allTypes[type] = testBuildIn(type);
+	duck.type(type,validateBuildIn(type));
 })
 
+/****************************************************************
+* Duck Object 
+*****************************************************************/
 function Duck(){}
 
 Duck.prototype = {
 	is : function(type) {
 		if (typeof type === 'string') {
-			var validator = _allTypes[type];
+			var validator = duck.type[type];
 			if(validator) {
 				return validator.call(this);
 			} else {
@@ -68,6 +82,7 @@ Duck.prototype = {
 		return true;
 	}
 };
+
 
 
 
