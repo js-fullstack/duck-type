@@ -50,6 +50,16 @@ describe('duck-type', function() {
         });
   	});
 
+    xdescribe('special support null and undefined', function () {
+        it('support null', function() {
+            assert.equal(duck(null).is(null), true);
+        });
+
+        it('support undefined', function() {
+            assert.equal(duck(undefined).is(undefined), true);
+        });
+    });
+
     describe('build-in object', function () {
         it('String', function () {
             assert.equal(duck('test').is(String), true);
@@ -129,7 +139,7 @@ describe('duck-type', function() {
         });
     });
 
-    describe('test many object', function () {
+    describe('test many object as arguments', function () {
         it('test many object as arguments', function() {
             assert.equal(duck(1,'hello',true).are(Number,String,Boolean), true);
             assert.equal(duck(1,'hello',true).are(Number,String), false);
@@ -285,8 +295,26 @@ describe('duck-type', function() {
         });
     });
 
+    describe('inline array define', function () {
+        it('happy path',function() {
+            assert.equal(duck([]).is([]), true);
+            assert.equal(duck({}).is([]), false);
+            assert.equal(duck([]).is({}), false);
+        });
+
+        it('[Number],[String]',function() {
+            assert.equal(duck([1,2,3]).is([Number]), true);
+            assert.equal(duck(['test','hello']).is([String]), true);
+            assert.equal(duck([]).is([String]), true);
+            assert.equal(duck([1,'ok',undefined]).is([Number,String,'undefined']), true);
+
+            assert.equal(duck([1,null,3]).is([Number]), false);
+            assert.equal(duck(['ok',undefined,3]).is([String]), false);
+        });
+    });
+
     describe('type define', function () {
-        it('luck path: Short', function() {
+        it('happy path: Short', function() {
             //define type Short
             duck.type('Short',function() {
                 return duck(this.value).is(Number) && 
