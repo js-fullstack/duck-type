@@ -378,5 +378,43 @@ describe('duck-type', function() {
             assert.equal(duck(p1).is('Person'), true);
             assert.equal(duck(p2).is('Person'), false);
         });
+
+        it('Complex type define',function() {
+            duck.type('ID',function() { return duck(this.value).is(Number) && this.value > 0 && this.value % 1 === 0; });
+            duck.type('Year',function() { return duck(this.value).is(Number) && this.value < 9999 && this.value >= 0; });
+            duck.type('Month',function() { return duck(this.value).is(Number) && this.value < 12 && this.value >= 0; });
+            duck.type('ResourceDemand',{
+                year: 'Year',
+                month: 'Month',
+                quantity: Number
+            });
+            duck.type('Proposal',{
+                id: 'ID',
+                startDate: Date,
+                endDate: Date,
+                description: String,
+                resourceDemands:['ResourceDemand']
+            });
+
+            var p1 = {
+                id: 12345,
+                startDate: new Date(),
+                endDate: new Date(),
+                description: 'Please use duck-type to build your js system',
+                resourceDemands:[{
+                    year: 2016,
+                    month:2,
+                    quantity:10
+                },{
+                    year: 2016,
+                    month:3,
+                    quantity:1
+                }]
+            };
+
+            assert.equal(duck(p1).is('Proposal'), true);
+
+        });
+
     });
 });
