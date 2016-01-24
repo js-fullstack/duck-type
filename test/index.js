@@ -1,31 +1,32 @@
 var assert = require('assert');
 var duck = require('../duck');
 
+
 describe('duck-type', function() {
-  	describe('base function', function () {
-	    it('should a function as node module', function () {
-	      	assert.equal(typeof duck,'function');
-	    });
-	});
+    describe('base function', function () {
+        it('should a function as node module', function () {
+            assert.equal(typeof duck,'function');
+        });
+    });
 
-	describe('build-in type', function () {
-    	it('string', function () {
-    		assert.equal(duck('test').is('string'), true);
-    		assert.equal(duck(123).is('string'), false);
-    	});
+    describe('build-in type', function () {
+        it('string', duck.mute(function () {
+            assert.equal(duck('test').is('string'), true);
+            assert.equal(duck(123).is('string'), false);
+        }));
 
-    	it('number', function () {
-    		assert.equal(duck(123).is('number'), true);
-    		assert.equal(duck('test').is('number'), false);
-    	});
+        it('number', duck.mute(function () {
+            assert.equal(duck(123).is('number'), true);
+            assert.equal(duck('test').is('number'), false);
+        }));
 
-        it('boolean', function () {
+        it('boolean', duck.mute(function () {
             assert.equal(duck(true).is('boolean'), true);
             assert.equal(duck(123).is('boolean'), false);
             assert.equal(duck(0).is('boolean'), false);
-        });
+        }));
 
-        it('object', function () {
+        it('object', duck.mute(function () {
             assert.equal(duck({}).is('object'), true);
             assert.equal(duck([]).is('object'), true);
             assert.equal(duck(null).is('object'), true);
@@ -34,56 +35,56 @@ describe('duck-type', function() {
             assert.equal(duck('sdfsdf').is('object'), false);
             assert.equal(duck(true).is('object'), false);
             assert.equal(duck(undefined).is('object'), false);
-        });
+        }));
 
-        it('undefined', function () {
+        it('undefined', duck.mute(function () {
             assert.equal(duck(undefined).is('undefined'), true);
             assert.equal(duck(123).is('undefined'), false);
             assert.equal(duck(0).is('undefined'), false);
-        });
+        }));
 
-        it('function', function () {
+        it('function', duck.mute(function () {
             assert.equal(duck(function(){}).is('function'), true);
             assert.equal(duck(function(){}).is('object'), false);
             assert.equal(duck(123).is('function'), false);
             assert.equal(duck(0).is('function'), false);
-        });
-  	});
+        }));
+    });
 
     xdescribe('special support null and undefined', function () {
-        it('support null', function() {
+        it('support null', duck.mute(function() {
             assert.equal(duck(null).is(null), true);
-        });
+        }));
 
-        it('support undefined', function() {
+        it('support undefined', duck.mute(function() {
             assert.equal(duck(undefined).is(undefined), true);
-        });
+        }));
     });
 
     describe('build-in object', function () {
-        it('String', function () {
+        it('String', duck.mute(function () {
             assert.equal(duck('test').is(String), true);
             assert.equal(duck(123).is(String), false);
-        });
+        }));
 
-        it('Number', function () {
+        it('Number', duck.mute(function () {
             assert.equal(duck(123).is(Number), true);
             assert.equal(duck('test').is(Number), false);
-        });
+        }));
 
-        it('Boolean', function () {
+        it('Boolean', duck.mute(function () {
             assert.equal(duck(true).is(Boolean), true);
             assert.equal(duck(123).is(Boolean), false);
             assert.equal(duck(0).is(Boolean), false);
-        });
+        }));
 
-        it('Boolean', function () {
+        it('Boolean', duck.mute(function () {
             assert.equal(duck(true).is(Boolean), true);
             assert.equal(duck(123).is(Boolean), false);
             assert.equal(duck(0).is(Boolean), false);
-        });
+        }));
 
-        it('Object', function () {
+        it('Object', duck.mute(function () {
             assert.equal(duck({}).is(Object), true);
             
             assert.equal(duck([]).is(Object), false);
@@ -92,42 +93,42 @@ describe('duck-type', function() {
             assert.equal(duck(123).is(Object), false);
             assert.equal(duck(true).is(Object), false);
             assert.equal(duck(undefined).is(Object), false);
-        });
+        }));
 
-        it('Function', function () {
+        it('Function', duck.mute(function () {
             assert.equal(duck(function(){}).is(Function), true);
             assert.equal(duck(function(){}).is(Object), false);
             assert.equal(duck(123).is('function'), false);
             assert.equal(duck(0).is('function'), false);
-        });
+        }));
 
-        it('Date', function () {
+        it('Date', duck.mute(function () {
             assert.equal(duck(new Date()).is(Date), true);
-        });
+        }));
 
-        it('Array', function () {
+        it('Array', duck.mute(function () {
             assert.equal(duck([]).is(Array), true);
             assert.equal(duck({}).is(Object), true);
-        });
+        }));
 
-        it('RegExp', function () {
+        it('RegExp', duck.mute(function () {
             assert.equal(duck(/(?:)/).is(RegExp), true);
-        });
+        }));
     });
 
     describe('Customize object', function () {
-        it('base', function () {
+        it('base', duck.mute(function () {
             function Person() {}
             var p = new Person();
             assert.equal(duck(p).is(Person), true);
             assert.equal(duck(p).is('object'), true);
             //assert.equal(duck(p).is(Object), true);
-        });
+        }));
 
         /**
         * have not implemented yet.
         */
-        xit('inherited', function () {
+        xit('inherited', duck.mute(function () {
             function Person() {}
             function Student() {}
             Student.prototype = new Person();
@@ -136,21 +137,21 @@ describe('duck-type', function() {
             assert.equal(duck(s).is(Person), true);
             assert.equal(duck(s).is('object'), true);
             assert.equal(duck(s).is(Object), true);
-        });
+        }));
     });
 
     describe('test many object as arguments', function () {
-        it('test many object as arguments', function() {
+        it('test many object as arguments', duck.mute(function() {
             assert.equal(duck(1,'hello',true).are(Number,String,Boolean), true);
             assert.equal(duck(1,'hello',true).are(Number,String), false);
 
             assert.equal(duck(1,'hello',true).is(Number), true);
             assert.equal(duck(1).are(Number), true);
-        });
+        }));
     });
 
     describe('verify by callback function', function () {
-        it('callback function', function() {
+        it('callback function', duck.mute(function() {
             assert.equal(duck(1).is(function(){
                 return this.value === 1;
             }), true);
@@ -159,31 +160,31 @@ describe('duck-type', function() {
                 return this.value !== 1;
             }), false);
             
-        });
+        }));
     });
 
     describe('inline object define', function () {
-        it('{}', function() {
+        it('{}', duck.mute(function() {
             assert.equal(duck({}).is({}), true);
             assert.equal(duck({name:'test'}).is({}), true);
             assert.equal(duck('hello').is({}), false);        
-        });
+        }));
 
-        it('{name:String}', function() {
+        it('{name:String}', duck.mute(function() {
             assert.equal(duck({name:'hello'}).is({name:String}), true);       
-        });
+        }));
 
-        it('{name:String, age: Number}', function() {
+        it('{name:String, age: Number}', duck.mute(function() {
             assert.equal(duck({name:'hello',age:5})
                 .is({name:String, age:Number}), true);       
-        });
+        }));
 
-        it('{name:String, age: Number}, age missing', function() {
+        it('{name:String, age: Number}, age missing', duck.mute(function() {
             assert.equal(duck({name:'hello'})
                 .is({name:String, age:Number}), false);       
-        });
+        }));
 
-        it('{name:{first:String, second:String}, age: Number}', function() {
+        it('{name:{first:String, second:String}, age: Number}', duck.mute(function() {
             assert.equal(duck({
                 name: {
                     first: 'shen',
@@ -209,9 +210,9 @@ describe('duck-type', function() {
                     last:Number
                 }, 
                 age: Number}), false);
-        });
+        }));
 
-        it('{name:{first:String, second:String}, age: Number, action{callback:Function}}', function() {
+        it('{name:{first:String, second:String}, age: Number, action{callback:Function}}', duck.mute(function() {
             assert.equal(duck({
                 name: {
                     first: 'shen',
@@ -251,9 +252,9 @@ describe('duck-type', function() {
                     callback: Function
                 }
             }), false);
-        });
+        }));
 
-        it('multi arguments combine inline object', function() {
+        it('multi arguments combine inline object', duck.mute(function() {
             assert.equal(duck('peter',{
                 config:{
                     host: '192.168.0.1',
@@ -275,9 +276,9 @@ describe('duck-type', function() {
                 },
                 Function
             ),true);
-        });
+        }));
 
-        it('multi arguments combine inline object 2', function() {
+        it('multi arguments combine inline object 2', duck.mute(function() {
             assert.equal(duck('peter',{
                 config:{
                     host: '192.168.0.1',
@@ -292,17 +293,17 @@ describe('duck-type', function() {
                 Object,
                 Function
             ),true);
-        });
+        }));
     });
 
     describe('inline array define', function () {
-        it('happy path',function() {
+        it('happy path', duck.mute(function(){
             assert.equal(duck([]).is([]), true);
             assert.equal(duck({}).is([]), false);
             assert.equal(duck([]).is({}), false);
-        });
+        }));
 
-        it('[Number],[String]',function() {
+        it('[Number],[String]',duck.mute(function() {
             assert.equal(duck([1,2,3]).is([Number]), true);
             assert.equal(duck(['test','hello']).is([String]), true);
             assert.equal(duck([]).is([String]), true);
@@ -310,31 +311,35 @@ describe('duck-type', function() {
 
             assert.equal(duck([1,null,3]).is([Number]), false);
             assert.equal(duck(['ok',undefined,3]).is([String]), false);
-        });
+        }));
     });
 
     describe('inline define, combine [], {}, function(){}',function() {
-        it('combine [{}]', function() {
+        it('combine [{}]', duck.mute(function() {
             assert.equal(duck([1,{name:'test'}]).is([Number,{name:String}]), true);
-        });
-        it('combine [{[]}]', function() {
+        }));
+
+        it('combine [{[]}]', duck.mute(function() {
             assert.equal(duck([1,{name:'test',list:[1,2,3]}]).is([Number,{name:String, list:[Number]}]), true);
-        });
-        it('combine {[{}]}', function() {
+        }));
+
+        it('combine {[{}]}', duck.mute(function() {
             assert.equal(duck({name:'foo',list:[{x:10,y:20},{x:1,y:2}]}).is({name:String, list:[{x:Number, y:Number}]}), true);
-        });
-        it('combine {function(){}}', function() {
+        }));
+
+        it('combine {function(){}}', duck.mute(function() {
             assert.equal(duck({name:'foo', age:2}).is({name:String, age:function(){ return this.value > 0 ;}}),true);
             assert.equal(duck({name:'foo', age:2}).is({name:String, age:function(){ return this.value > 10 ;}}),false);
-        });
-        it('combine [function(){}]', function() {
+        }));
+
+        it('combine [function(){}]', duck.mute(function() {
             assert.equal(duck([2,4]).is([function(){ return this.value % 2 === 0;}]), true);
             assert.equal(duck([1,2]).is([function(){ return this.value % 2 === 0;}]), false);
-        });
+        }));
     });
 
     describe('type define', function () {
-        it('happy path: Short', function() {
+        it('happy path: Short', duck.mute(function() {
             //define type Short
             duck.type('Short',function() {
                 return duck(this.value).is(Number) && 
@@ -349,9 +354,9 @@ describe('duck-type', function() {
             assert.equal(duck(65537).is('Short'), false);
             assert.equal(duck('').is('Short'), false);
             assert.equal(duck(true).is('Short'), false);
-        });
+        }));
 
-        it('define Customize type, and use it as properity of Object', function() {
+        it('define Customize type, and use it as properity of Object', duck.mute(function() {
             //define type Short
             duck.type('Short',function() {
                 return duck(this.value).is(Number) && 
@@ -377,9 +382,9 @@ describe('duck-type', function() {
 
             assert.equal(duck(p1).is('Person'), true);
             assert.equal(duck(p2).is('Person'), false);
-        });
+        }));
 
-        it('Complex type define',function() {
+        it('Complex type define',duck.mute(function() {
             duck.type('ID',function() { return duck(this.value).is(Number) && this.value > 0 && this.value % 1 === 0; });
             duck.type('Year',function() { return duck(this.value).is(Number) && this.value < 9999 && this.value >= 0; });
             duck.type('Month',function() { return duck(this.value).is(Number) && this.value < 12 && this.value >= 0; });
@@ -414,11 +419,44 @@ describe('duck-type', function() {
 
             assert.equal(duck(p1).is('Proposal'), true);
 
-        });
-
+        }));
     });
 
     xdescribe('or, and', function() {
 
     });
 });
+
+describe('throw', function() {
+    it('happy path', function(){
+        assert.throws(function(){
+            duck('1').is(Number);
+        });
+    });
+
+    it('type define, type verify', function() {
+        var checkpoint = false;
+        duck.type('Integer', function() {
+            var result = duck(this.value).is(Number) && this.value % 1 === 0;
+            checkpoint = true;
+            return result;
+        });
+
+        duck(123).is('Integer');
+        assert.equal(checkpoint,true);
+        assert.throws(function() {
+            duck('123').is('Integer');
+        });
+    });
+
+    
+    it('alias of Number', function() {
+        duck.type('MyNumber',Number);
+
+        duck(123).is('MyNumber');
+        assert.throws(function() {
+            duck(true).is('MyNumber');
+        });
+    });
+});
+
