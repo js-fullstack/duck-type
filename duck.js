@@ -13,17 +13,15 @@ function duck () {
 var returnHandle = throwHandler;
 
 function mute(fn) {
-	return function() {
-		var args = Array.prototype.slice.call(arguments), self = this ,oldHandler = returnHandle;
-		returnHandle = booleanHandler;
-		try {
-			return fn.apply(self, args);
-		} catch(e) {
-			throw e;
-		} finally {
-			returnHandle = oldHandler;
-		}
-	};
+	var oldHandler = returnHandle;
+	returnHandle = booleanHandler;
+	try {
+		return fn();
+	} catch(e) {
+		throw e;
+	} finally {
+		returnHandle = oldHandler;
+	}
 }
 
 function booleanHandler(result, value, type) {
@@ -46,11 +44,11 @@ duck.mute = mute;
 *****************************************************************/
 function typeDefine(name, define) {
 	if(typeof define === 'function' && !define.name) {
-		typeDefine[name] = mute(define);
+		typeDefine[name] = define;
 	} else {
-		typeDefine[name] = mute(function() {
+		typeDefine[name] = function() {
 			return duck(this.value).is(define);
-		});
+		};
 	}
 }
 
@@ -76,50 +74,52 @@ function Duck(){}
 
 Duck.prototype = {
 	is : function(type) {
-		var self = this;
-		if (typeof type === 'string') {
-			var validator = duck.type[type];
-			if(validator) {
-				return returnHandle(validator.call(self), self.value, type);
-			} else {
-				return returnHandle(false, self.value, type);
-			}	
-		} else if(typeof type === 'function') {
-			if(type.name) {
-				return returnHandle(self.value !== undefined && self.value !== null && self.value.constructor === type,
-					self.value, type.name);
-			} else {
-				return returnHandle(type.call(self), self.value, type.toString());
-			}
-		} else if(duck(type).is(Array)) {
-			return duck(self.value).is(Array) && (function() {
-				var i=0, len=type.length;
-				if(type.length === 0) {
-					return returnHandle(true, self.value, '[]');
-				} else if(type.length === 1) {
-					return returnHandle(!self.value.some(function(v){ return !duck(v).is(type[0]); }), self.value, ['[',type[0],']'].join(''));
-				} else {
-					for(i; i<len; i++) {
-						if(!duck(self.value[i]).is(type[i])) {
-							return returnHandle(false, self.value, type);
-						}
+		var self = this,
+			result = mute(function() {
+				if (typeof type === 'string') {
+					var validator = duck.type[type];
+					if(validator) {
+						return validator.call(self);
+					} else {
+						return false;
+					}	
+				} else if(typeof type === 'function') {
+					if(type.name) {
+						return self.value !== undefined && self.value !== null && self.value.constructor === type;
+					} else {
+						return type.call(self);
 					}
-					return returnHandle(true, self.value, type);
+				} else if(duck(type).is(Array)) {
+					return duck(self.value).is(Array) && (function() {
+						var i=0, len=type.length;
+						if(type.length === 0) {
+							return true;
+						} else if(type.length === 1) {
+							return !self.value.some(function(v){ return !duck(v).is(type[0]); });
+						} else {
+							for(i; i<len; i++) {
+								if(!duck(self.value[i]).is(type[i])) {
+									return false;
+								}
+							}
+							return true;
+						}
+					})();
+				} else if(duck(type).is(Object)) {
+					return duck(self.value).is(Object) && (function(){
+						var i=0, keys = Object.keys(type), len = keys.length;
+						for(i; i<len; i++) {
+							if(!duck(self.value[keys[i]]).is(type[keys[i]])){
+								return false;
+							};
+						}
+						return true;
+					})();
+				} else {
+					return false;
 				}
-			})();
-		} else if(duck(type).is(Object)) {
-			return duck(self.value).is(Object) && (function(){
-				var i=0, keys = Object.keys(type), len = keys.length;
-				for(i; i<len; i++) {
-					if(!duck(self.value[keys[i]]).is(type[keys[i]])){
-						return returnHandle(false, self.value, type);
-					};
-				}
-				return returnHandle(true, self.value, type);
-			})();
-		} else {
-			return returnHandle(false, self.value, type);
-		}	
+			});
+		return returnHandle(result, this.value, type);
 	},
 
 	are : function(){
