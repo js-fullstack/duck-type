@@ -538,7 +538,7 @@ describe('mute', function() {
         });
     });
 
-    it('mute', function() {
+    it('mute block', function() {
         var checkpoint = false;
         duck.mute(function(){
             assert.equal(duck(2).is(String), false);
@@ -547,5 +547,23 @@ describe('mute', function() {
         assert(checkpoint);
     });
     
+    it('mute true/false', function() {
+        var checkpoint = false;
+        duck.mute(true);
+        try{
+            assert.equal(duck(2).is(String), false);
+            checkpoint = true;
+        } finally {
+            duck.mute(false);
+        }
+        
+        assert(checkpoint);
+    });
+
+    it('mute always', function() {
+        var checkpoint = false;
+        duck.mute(duck.ALWAYS);
+        assert(duck(2).is(String));
+    });
 });
 
