@@ -43,13 +43,7 @@ duck.mute = mute;
 * Type Collection 
 *****************************************************************/
 function typeDefine(name, define) {
-	if(typeof define === 'function' && !define.name) {
-		typeDefine[name] = define;
-	} else {
-		typeDefine[name] = function() {
-			return duck(this.value).is(define);
-		};
-	}
+	typeDefine[name] = define;
 }
 
 (function initBuildInType() {
@@ -77,11 +71,11 @@ Duck.prototype = {
 		var self = this,
 			result = mute(function() {
 				if (typeof type === 'string') {
-					var validator = duck.type[type];
-					if(validator) {
-						return validator.call(self);
+					var define = duck.type[type];
+					if(typeof define === 'function' && !define.name) {
+						return define.call(self);
 					} else {
-						return false;
+						return duck(self.value).is(define);
 					}	
 				} else if(typeof type === 'function') {
 					if(type.name) {
