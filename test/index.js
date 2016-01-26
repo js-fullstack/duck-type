@@ -560,9 +560,9 @@ describe('mute', function() {
         assert(checkpoint);
     });
 
-    it('mute always', function() {
+    it('duck turn off', function() {
         var checkpoint = false;
-        duck.mute(duck.ALWAYS);
+        duck.turnoff();
         assert(duck(2).is(String));
     });
 });

@@ -10,7 +10,7 @@ function duck () {
 /***************************************************************
 * mute with return handle
 ****************************************************************/
-var returnHandle = throwHandler, _shortcut = false;
+var returnHandle = throwHandler, _turnoff = false;
 
 function mute(option) {
 	var oldHandler = returnHandle, fn;
@@ -26,8 +26,6 @@ function mute(option) {
 		}
 	} else if(typeof option === 'boolean') {
 		returnHandle = option? booleanHandler : throwHandler;
-	} else if(option === duck.ALWAYS) {
-		_shortcut = true;
 	}
 }
 
@@ -44,7 +42,8 @@ function throwHandler(result, value, type) {
 }
 
 duck.mute = mute;
-duck.ALWAYS = {};
+
+duck.turnoff = function() { _turnoff = true; };
 
 
 /****************************************************************
@@ -76,7 +75,7 @@ function Duck(){}
 
 Duck.prototype = {
 	is : function(type) {
-		if(_shortcut) { return true;}
+		if(_turnoff) { return true;}
 		var self = this,
 			result = mute(function() {
 				if (typeof type === 'string') {
@@ -126,7 +125,7 @@ Duck.prototype = {
 	},
 
 	are : function(){
-		if(_shortcut) { return true;}
+		if(_turnoff) { return true;}
 		var self = this, args = Array.prototype.slice.call(arguments),i=0, len=args.length;
 		if(this.values.length !== args.length) {
 			return returnHandle(false, self.values, args);
