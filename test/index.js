@@ -194,7 +194,7 @@ describe('duck-type', function() {
             });
         });
 
-        it('inherited by Object.create', function() {
+        xit('inherited by Object.create', function() {
             var Foo = {
                 name: 'string'
             };
