@@ -196,7 +196,7 @@ describe('duck-type', function() {
 
         it('inherited by Object.create', function() {
             var Foo = {
-                name: 'test'
+                name: 'string'
             };
 
             var foo = Object.create(Foo);
@@ -204,6 +204,10 @@ describe('duck-type', function() {
 
             var bar = Object.create(foo);
             assert(duck(bar).is(Foo));
+
+            assert.throws(function() {
+                duck({name:'test'}).is(Foo);
+            })
         })
     });
 
