@@ -194,19 +194,19 @@ describe('duck-type', function() {
             });
         });
 
-        xit('inherited by Object.create', function() {
+        it('inherited by Object.create', function() {
             var Foo = {
                 name: 'string'
             };
 
             var foo = Object.create(Foo);
-            assert(duck(foo).is(Foo));
+            assert(duck(foo).is(duck.asPrototype(Foo)));
 
             var bar = Object.create(foo);
-            assert(duck(bar).is(Foo));
+            assert(duck(bar).is(duck.asPrototype(Foo)));
 
             assert.throws(function() {
-                duck({name:'test'}).is(Foo);
+                duck({name:'test'}).is(duck.asPrototype(Foo));
             })
         })
     });
