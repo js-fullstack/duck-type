@@ -8,7 +8,7 @@ function duck () {
 };
 
 /***************************************************************
-* mute with return handle
+* mute and turn off
 ****************************************************************/
 var returnHandle = throwHandler, _turnoff = false;
 
@@ -49,24 +49,21 @@ duck.turnoff = function() { _turnoff = true; };
 /****************************************************************
 * Type Collection 
 *****************************************************************/
-function typeDefine(name, define) {
-	typeDefine[name] = define;
+
+function typeDefine(type, define) {
+	typeDefine[type] = define;
 }
 
-(function initBuildInType() {
-	var _buildIn = ['string','number','boolean','object','undefined','function'];
-
-	function validateBuildIn(type) {
-		return function() {
-			return typeof this.value === type;
-		}
-	}
-
-	_buildIn.forEach(function(type){
-		typeDefine(type,validateBuildIn(type));
+(function preparedbuildIn(){
+	var _buildIn = {string: String,number: Number,boolean:Boolean,object:Object,function:Function};
+	Object.keys(_buildIn).forEach(function(type) {
+		typeDefine(type, _buildIn[type]);
 	});
 })();
+
 duck.type = typeDefine;
+
+
 
 /****************************************************************
 * Duck Object 
@@ -78,18 +75,19 @@ Duck.prototype = {
 		if(_turnoff) { return true;}
 		var self = this,
 			result = mute(function() {
-				if (typeof type === 'string') {
-					var define = duck.type[type];
-					if(typeof define === 'function' && !define.name) {
-						return define.call(self);
-					} else {
-						return duck(self.value).is(define);
-					}	
+				if(self.value === undefined){
+					return type === 'undefined';
+				} else if(self.value === null) {
+					return ['object', Object].indexOf(type) > -1;                                                                                                                                                                          
+				} else if (typeof type === 'string') {
+					return duck(self.value).is(duck.type[type]);	
 				} else if(typeof type === 'function') {
 					if(type.name) {
-						return self.value !== undefined && self.value !== null && self.value.constructor === type;
+						return (function(constructor) {
+							return this instanceof constructor; 
+						}).call(self.value,type);
 					} else {
-						return type.call(self);
+						return type.call(self.value);
 					}
 				} else if(duck(type).is(Array)) {
 					return duck(self.value).is(Array) && (function() {
@@ -108,7 +106,7 @@ Duck.prototype = {
 						}
 					})();
 				} else if(duck(type).is(Object)) {
-					return duck(self.value).is(Object) && (function(){
+					return type.isPrototypeOf(self.value) || duck(self.value).is(Object) && (function(){
 						var i=0, keys = Object.keys(type), len = keys.length;
 						for(i; i<len; i++) {
 							if(!duck(self.value[keys[i]]).is(type[keys[i]])){
