@@ -568,7 +568,29 @@ describe('duck-type', function() {
             assert.throws(function(){
                 duck(true).is(duck.or(Number,String));
             });
-        })
+        });
+
+        it('support and',function() {
+            duck.type('Foo', {name:String});
+            duck.type('Bar',{age:Number});
+            duck.type('Both',duck.and('Foo','Bar'));
+
+            var ok = {
+                name:'hello',
+                age: 123
+            };
+
+            var error1 = {name:'hello'};
+            var error2 = {age:123};
+            assert(duck(ok).is('Both'));
+            assert(duck(ok).is(duck.and('Foo','Bar')));
+            assert.throws(function(){
+                duck(error1).is('Both');
+            });
+            assert.throws(function(){
+                duck(error2).is('Both');
+            });
+        });
     });
 });
 

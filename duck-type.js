@@ -64,25 +64,6 @@ function typeDefine(type, define) {
 duck.type = typeDefine;
 
 /****************************************************************
-* function of duck
-*****************************************************************/
-duck.asPrototype = function(obj) {
-	return function() {
-		return obj.isPrototypeOf(this);
-	};
-};
-
-duck.or = function(){
-	var args = Array.prototype.slice.call(arguments);
-	return function(){
-		var self = this;
-		return args.some(function(type){
-			return duck(self).is(type);
-		});
-	};
-}
-
-/****************************************************************
 * Duck Object 
 *****************************************************************/
 function Duck(){}
@@ -155,7 +136,34 @@ Duck.prototype = {
 	}
 };
 
+/****************************************************************
+* function of duck
+*****************************************************************/
+duck.asPrototype = function(obj) {
+	return function() {
+		return obj.isPrototypeOf(this);
+	};
+};
 
+duck.or = function(){
+	var args = Array.prototype.slice.call(arguments);
+	return function(){
+		var self = this;
+		return args.some(function(type){
+			return duck(self).is(type);
+		});
+	};
+};
+
+duck.and = function(){
+	var args = Array.prototype.slice.call(arguments);
+	return function(){
+		var self = this;
+		return !args.some(function(type){
+			return !duck(self).is(type);
+		});
+	};
+};
 
 
 /**
