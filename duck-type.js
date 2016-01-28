@@ -63,7 +63,10 @@ function typeDefine(type, define) {
 
 duck.type = typeDefine;
 
-duck.type.UNDEFINED = {};
+duck.type.UNDEFINED = function(){
+	return this === duck.type.UNDEFINED;
+};
+duck.type.NULL = {};
 
 /****************************************************************
 * Duck Object 
@@ -79,7 +82,7 @@ Duck.prototype = {
 					if(typeof type === 'function' && !type.name) {
 						return type.call(duck.type.UNDEFINED);
 					} else {
-						return type === 'undefined';	
+						return type === 'undefined' || duck.type[type] === duck.type.UNDEFINED;	
 					}
 				} else if(self.value === null) {
 					return ['object', Object].indexOf(type) > -1;                                                                                                                                                                          

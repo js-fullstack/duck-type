@@ -102,6 +102,12 @@ describe('duck-type', function() {
                 duck(5).is(5);
             });
         });
+
+        it('support duck.type.UNDEFINED', function() {
+            assert(duck(undefined).is(duck.type.UNDEFINED));
+            assert(duck(undefined).is('UNDEFINED'));
+            assert(duck().is('UNDEFINED'));
+        });
     });
 
     describe('build-in object', function () {

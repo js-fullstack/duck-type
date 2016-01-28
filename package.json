@@ -4,7 +4,7 @@
   "description": "Duck Type System",
   "main": "duck-type.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec",
+    "test": "./node_modules/.bin/mocha --reporter spec ",
     "debug": "--debug-brk, node-inspector"
   },
   "repository": {
