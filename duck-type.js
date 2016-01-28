@@ -70,6 +70,16 @@ duck.asPrototype = function(obj) {
 	return function() {
 		return obj.isPrototypeOf(this);
 	};
+};
+
+duck.or = function(){
+	var args = Array.prototype.slice.call(arguments);
+	return function(){
+		var self = this;
+		return args.some(function(type){
+			return duck(self).is(type);
+		});
+	};
 }
 
 /****************************************************************

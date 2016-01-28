@@ -1,5 +1,5 @@
 var assert = require('assert');
-var duck = require('../duck');
+var duck = require('../duck-type');
 
 
 describe('duck-type', function() {
@@ -436,6 +436,7 @@ describe('duck-type', function() {
 
         it('',function() {
             duck.type('Foo', {name:String});
+
             var something1 = {
                 name: 'bar',
                 age:123,
@@ -454,6 +455,8 @@ describe('duck-type', function() {
             assert.throws(function() {
                 duck(something2).is('Foo');
             })
+
+
         });
     });
 
@@ -558,8 +561,14 @@ describe('duck-type', function() {
         });
     });
 
-    xdescribe('or, and', function() {
-
+    describe('or, and, undefinable, nullable', function() {
+        it('support or', function() {
+            assert(duck(1).is(duck.or(Number,String)));
+            assert(duck('123').is(duck.or(Number,String)));
+            assert.throws(function(){
+                duck(true).is(duck.or(Number,String));
+            });
+        })
     });
 });
 
