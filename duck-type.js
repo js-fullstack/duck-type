@@ -63,6 +63,8 @@ function typeDefine(type, define) {
 
 duck.type = typeDefine;
 
+duck.type.UNDEFINED = {};
+
 /****************************************************************
 * Duck Object 
 *****************************************************************/
@@ -73,8 +75,12 @@ Duck.prototype = {
 		if(_turnoff) { return true;}
 		var self = this,
 			result = mute(function() {
-				if(self.value === undefined){
-					return type === 'undefined';
+				if(self.value === undefined || self.value === duck.type.UNDEFINED ){
+					if(typeof type === 'function' && !type.name) {
+						return type.call(duck.type.UNDEFINED);
+					} else {
+						return type === 'undefined';	
+					}
 				} else if(self.value === null) {
 					return ['object', Object].indexOf(type) > -1;                                                                                                                                                                          
 				} else if (typeof type === 'string') {
@@ -163,6 +169,10 @@ duck.and = function(){
 			return !duck(self).is(type);
 		});
 	};
+};
+
+duck.undefinable = function(type){
+	return duck.or(type,'undefined');
 };
 
 

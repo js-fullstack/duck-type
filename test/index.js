@@ -565,6 +565,8 @@ describe('duck-type', function() {
         it('support or', function() {
             assert(duck(1).is(duck.or(Number,String)));
             assert(duck('123').is(duck.or(Number,String)));
+            assert(duck(123).is(duck.or(Number,'undefined')));
+            assert(duck().is(duck.or(Number,'undefined')));
             assert.throws(function(){
                 duck(true).is(duck.or(Number,String));
             });
@@ -589,6 +591,15 @@ describe('duck-type', function() {
             });
             assert.throws(function(){
                 duck(error2).is('Both');
+            });
+        });
+
+        it('support undefinable', function() {
+            assert(duck(undefined).is(duck.undefinable(Number)));
+            assert(duck({name:'test'}).is({name:String, age: duck.undefinable(Number)}));
+            assert(duck({name:'test', age:12345}).is({name:String, age: duck.undefinable(Number)}));
+            assert.throws(function() {
+                duck({name:'test', age:'12345'}).is({name:String, age: duck.undefinable(Number)})
             });
         });
     });
