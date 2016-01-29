@@ -54,19 +54,31 @@ function typeDefine(type, define) {
 	typeDefine[type] = define;
 }
 
+function _instanceof(value, type) {
+	return value !== undefined && (new Object(value) instanceof type);
+}
+
+function _isConstructor(type) {
+	return typeof type === 'function' && type.name;
+}
+
 (function preparedbuildIn(){
-	var _buildIn = {string: String,number: Number,boolean:Boolean,object:Object,function:Function};
+	var _buildIn = {string:String,number:Number,boolean:Boolean, 'object':Object, function: Function, null:Object,'undefined':undefined};
 	Object.keys(_buildIn).forEach(function(type) {
-		typeDefine(type, _buildIn[type]);
+		typeDefine(type, function(value) {
+			return typeof value === type || _instanceof(value, _buildIn[type]);
+		});
 	});
 })();
 
 duck.type = typeDefine;
 
-duck.type.UNDEFINED = function(){
-	return this === duck.type.UNDEFINED;
+duck.type.UNDEFINED = function(value){
+	return value === undefined;
 };
-duck.type.NULL = {};
+duck.type.NULL = function(value) {
+	return value === null;
+};
 
 /****************************************************************
 * Duck Object 
@@ -78,24 +90,12 @@ Duck.prototype = {
 		if(_turnoff) { return true;}
 		var self = this,
 			result = mute(function() {
-				if(self.value === undefined || self.value === duck.type.UNDEFINED ){
-					if(typeof type === 'function' && !type.name) {
-						return type.call(duck.type.UNDEFINED);
-					} else {
-						return type === 'undefined' || duck.type[type] === duck.type.UNDEFINED;	
-					}
-				} else if(self.value === null) {
-					return ['object', Object].indexOf(type) > -1;                                                                                                                                                                          
-				} else if (typeof type === 'string') {
-					return duck(self.value).is(duck.type[type]);	
+				if (typeof type === 'string') {
+					return duck(self.value).is(duck.type[type]);
+				} else if(_isConstructor(type)) {
+					return _instanceof(self.value,type);
 				} else if(typeof type === 'function') {
-					if(type.name) {
-						return (function(constructor) {
-							return this instanceof constructor; 
-						}).call(self.value,type);
-					} else {
-						return type.call(self.value);
-					}
+					return type(self.value);
 				} else if(duck(type).is(Array)) {
 					return duck(self.value).is(Array) && (function() {
 						var i=0, len=type.length;
@@ -149,27 +149,25 @@ Duck.prototype = {
 * function of duck
 *****************************************************************/
 duck.asPrototype = function(obj) {
-	return function() {
-		return obj.isPrototypeOf(this);
+	return function(value) {
+		return obj.isPrototypeOf(value);
 	};
 };
 
 duck.or = function(){
 	var args = Array.prototype.slice.call(arguments);
-	return function(){
-		var self = this;
+	return function(value){
 		return args.some(function(type){
-			return duck(self).is(type);
+			return duck(value).is(type);
 		});
 	};
 };
 
 duck.and = function(){
 	var args = Array.prototype.slice.call(arguments);
-	return function(){
-		var self = this;
+	return function(value){
 		return !args.some(function(type){
-			return !duck(self).is(type);
+			return !duck(value).is(type);
 		});
 	};
 };

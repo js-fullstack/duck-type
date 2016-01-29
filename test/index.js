@@ -76,9 +76,7 @@ describe('duck-type', function() {
         it('support null', function() {
             assert(duck(null).is(Object));
             assert(duck(null).is('object'));
-            assert.throws(function(){
-                duck(null).is({});
-            });
+            assert(duck(null).is({}));
         });
 
         it('support undefined', function() {
@@ -107,6 +105,14 @@ describe('duck-type', function() {
             assert(duck(undefined).is(duck.type.UNDEFINED));
             assert(duck(undefined).is('UNDEFINED'));
             assert(duck().is('UNDEFINED'));
+        });
+
+        it('support duck.type.NULL', function() {
+            assert(duck(null).is(duck.type.NULL));
+            assert(duck(null).is('NULL'));            
+            assert.throws(function() {
+                duck(123).is('NULL');
+            });
         });
     });
 
@@ -236,13 +242,13 @@ describe('duck-type', function() {
 
     describe('verify by callback function', function () {
         it('callback function', function() {
-            assert(duck(1).is(function(){
-                return this.valueOf() === 1;
+            assert(duck(1).is(function(value){
+                return value === 1;
             }));
 
             assert.throws(function(){
-                duck(1).is(function(){
-                    return this.valueOf() !== 1;
+                duck(1).is(function(value){
+                    return value !== 1;
                 });
             });
             
@@ -318,7 +324,7 @@ describe('duck-type', function() {
                     first:String, 
                     last:String
                 }, 
-                age: function() {return this.valueOf() === 1},
+                age: function(value) {return value === 1},
                 action: {
                     callback: Function
                 }
@@ -339,7 +345,7 @@ describe('duck-type', function() {
                         first:String, 
                         last:String
                     }, 
-                    age: function() {return this.valueOf() !== 1},
+                    age: function(value) {return value !== 1},
                     action: {
                         callback: Function
                     }
@@ -427,16 +433,16 @@ describe('duck-type', function() {
         });
 
         it('combine {function(){}}', function() {
-            assert(duck({name:'foo', age:2, something:'test'}).is({name:String, age:function(){ return this > 0 ;}}));
+            assert(duck({name:'foo', age:2, something:'test'}).is({name:String, age:function(value){ return value > 0 ;}}));
             assert.throws(function(){
-                duck({name:'foo', age:2}).is({name:String, age:function(){ return this > 10 ;}});
+                duck({name:'foo', age:2}).is({name:String, age:function(value){ return value > 10 ;}});
             });
         });
 
         it('combine [function(){}]', function() {
-            assert(duck([2,4]).is([function(){ return this % 2 === 0;}]));
+            assert(duck([2,4]).is([function(value){ return value % 2 === 0;}]));
             assert.throws(function(){
-                duck([1,2]).is([function(){ return this % 2 === 0;}]);
+                duck([1,2]).is([function(value){ return value % 2 === 0;}]);
             });
         });
 
@@ -469,11 +475,11 @@ describe('duck-type', function() {
     describe('type define', function () {
         it('happy path: Short', function() {
             //define type Short
-            duck.type('Short',function() {
-                return duck(this).is(Number) && 
-                    this % 1 === 0 &&
-                    this <= 65536 &&
-                    this > -65535
+            duck.type('Short',function(value) {
+                return duck(value).is(Number) && 
+                    value % 1 === 0 &&
+                    value <= 65536 &&
+                    value > -65535
             });
 
             assert(duck(1232).is('Short'));
@@ -492,11 +498,11 @@ describe('duck-type', function() {
 
         it('define Customize type, and use it as properity of Object', function() {
             //define type Short
-            duck.type('Short',function() {
-                return duck(this).is(Number) && 
-                    this % 1 === 0 &&
-                    this <= 65536 &&
-                    this > -65535
+            duck.type('Short',function(value) {
+                return duck(value).is(Number) && 
+                    value % 1 === 0 &&
+                    value <= 65536 &&
+                    value > -65535
             });
 
             duck.type('Person',{
@@ -521,9 +527,9 @@ describe('duck-type', function() {
         });
 
         it('Complex type define',function() {
-            duck.type('ID',function() { return duck(this).is(Number) && this > 0 && this % 1 === 0; });
-            duck.type('Year',function() { return duck(this).is(Number) && this < 9999 && this >= 0; });
-            duck.type('Month',function() { return duck(this).is(Number) && this < 12 && this >= 0; });
+            duck.type('ID',function(value) { return duck(value).is(Number) && value > 0 && value % 1 === 0; });
+            duck.type('Year',function(value) { return duck(value).is(Number) && value < 9999 && value >= 0; });
+            duck.type('Month',function(value) { return duck(value).is(Number) && value < 12 && value >= 0; });
             duck.type('ResourceDemand',{
                 year: 'Year',
                 month: 'Month',
@@ -614,8 +620,8 @@ describe('duck-type', function() {
 describe('mute', function() {
     it('duck(xxx).is(XXX) will not throw Error when it as a validator executed in context duck.type', function() {
         var checkpoint = false;
-        duck.type('Integer', function() {
-            var result = duck(this).is(Number) && this % 1 === 0;
+        duck.type('Integer', function(value) {
+            var result = duck(value).is(Number) && value % 1 === 0;
             checkpoint = true;
             return result;
         });
