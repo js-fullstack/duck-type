@@ -617,6 +617,13 @@ describe('duck-type', function() {
     });
 });
 
+describe('namespace',function() {
+    xit('happy path', function() {
+        duck.ns('test').type('HELLO',String);
+        assert(duck('hello').is(duck.type.test.HELLO));
+    });
+});
+
 describe('mute', function() {
     it('duck(xxx).is(XXX) will not throw Error when it as a validator executed in context duck.type', function() {
         var checkpoint = false;
