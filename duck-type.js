@@ -45,40 +45,50 @@ duck.mute = mute;
 
 duck.turnoff = function() { _turnoff = true; };
 
-
 /****************************************************************
-* Type Collection 
+* namespace 
 *****************************************************************/
 
-function typeDefine(type, define) {
-	typeDefine[type] = define;
+function createTypeFunction() {
+	return function f(type, define) {
+		f[type] = define;
+	};
 }
 
-function _instanceof(value, type) {
-	return value !== undefined && (new Object(value) instanceof type);
+function namespace(name) {
+	if(!name) {
+		this.ns = namespace;
+		this.type = createTypeFunction()
+		return this;
+	} else {
+		if(!this[name]) {
+			this[name] = {};
+		} 
+		this[name].ns = namespace;
+		this[name].type = createTypeFunction();
+		return this[name];
+	}
 }
 
-function _isConstructor(type) {
-	return typeof type === 'function' && type.name;
-}
+namespace.call(duck);
 
+/****************************************************************
+* init build-in type for defuault namespace 
+*****************************************************************/
 (function preparedbuildIn(){
 	var _buildIn = {string:String,number:Number,boolean:Boolean, 'object':Object, function: Function, null:Object,'undefined':undefined};
 	Object.keys(_buildIn).forEach(function(type) {
-		typeDefine(type, function(value) {
+		duck.type(type, function(value) {
 			return typeof value === type || _instanceof(value, _buildIn[type]);
+		});
+		duck.type('UNDEFINED', function(value){
+			return value === undefined;
+		});
+		duck.type('NULL', function(value) {
+			return value === null;
 		});
 	});
 })();
-
-duck.type = typeDefine;
-
-duck.type.UNDEFINED = function(value){
-	return value === undefined;
-};
-duck.type.NULL = function(value) {
-	return value === null;
-};
 
 /****************************************************************
 * Duck Object 
@@ -144,6 +154,14 @@ Duck.prototype = {
 		return returnHandle(true, self.values, args);
 	}
 };
+
+function _instanceof(value, type) {
+	return value !== undefined && (new Object(value) instanceof type);
+}
+
+function _isConstructor(type) {
+	return typeof type === 'function' && type.name;
+}
 
 /****************************************************************
 * function of duck

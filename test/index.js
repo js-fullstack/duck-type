@@ -611,16 +611,41 @@ describe('duck-type', function() {
             assert(duck({name:'test'}).is({name:String, age: duck.undefinable(Number)}));
             assert(duck({name:'test', age:12345}).is({name:String, age: duck.undefinable(Number)}));
             assert.throws(function() {
-                duck({name:'test', age:'12345'}).is({name:String, age: duck.undefinable(Number)})
+                duck({name:'test', age:'12345'}).is({name:String, age: duck.undefinable(Number)});
             });
         });
     });
 });
 
 describe('namespace',function() {
-    xit('happy path', function() {
-        duck.ns('test').type('HELLO',String);
-        assert(duck('hello').is(duck.type.test.HELLO));
+    it('happy path', function() {
+        duck.ns('abc');
+        duck.abc.type('HELLO',String);
+        assert(duck('hello').is(duck.abc.type.HELLO));
+    });
+
+    it('sub namespace, happy path', function() {
+        duck.ns('abc');
+        duck.abc.ns('xyz');
+        duck.abc.xyz.type('HELLO',String);
+        assert(duck('hello').is(duck.abc.xyz.type.HELLO));
+    });
+
+    it('will not conflict with duck util function, like or, and ...', function() {
+        duck.ns('and');
+        duck.and.type('HELLO',String);
+        assert(duck('hello').is(duck.and.type.HELLO));
+        assert(duck('hello').is(duck.and(String,duck.and.type.HELLO)));
+    });
+
+    it('will not conflict with duck util function, like ns, type ...', function() {
+        duck.ns('ns');
+        duck.ns.type('HELLO',String);
+        assert(duck('hello').is(duck.ns.type.HELLO));
+       
+        duck.ns('type');
+        duck.type.type('HELLO',String);
+        assert(duck('hello').is(duck.type.type.HELLO)); 
     });
 });
 
