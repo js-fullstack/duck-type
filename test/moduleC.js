@@ -3,7 +3,7 @@ var duck = require('../duck-type').namespace();
 var mb = require('./moduleB');
 
 
-describe('duck-type', function() {
+describe('module in node', function() {
 	it('happy path',function() {
 		var p1 = {
 			id: 12345,

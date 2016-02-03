@@ -504,7 +504,7 @@ describe('duck-type', function() {
         });
     });
 
-    describe('or, and, undefinable, nullable', function() {
+    describe('or, and, optional, nullable', function() {
         it('support or', function() {
             assert(duck(1).is(duck.or(Number,String)));
             assert(duck('123').is(duck.or(Number,String)));
@@ -537,12 +537,12 @@ describe('duck-type', function() {
             });
         });
 
-        it('support undefinable', function() {
-            assert(duck(undefined).is(duck.undefinable(Number)));
-            assert(duck({name:'test'}).is({name:String, age: duck.undefinable(Number)}));
-            assert(duck({name:'test', age:12345}).is({name:String, age: duck.undefinable(Number)}));
+        it('support optional', function() {
+            assert(duck(undefined).is(duck.optional(Number)));
+            assert(duck({name:'test'}).is({name:String, age: duck.optional(Number)}));
+            assert(duck({name:'test', age:12345}).is({name:String, age: duck.optional(Number)}));
             assert.throws(function() {
-                duck({name:'test', age:'12345'}).is({name:String, age: duck.undefinable(Number)});
+                duck({name:'test', age:'12345'}).is({name:String, age: duck.optional(Number)});
             });
         });
     });
