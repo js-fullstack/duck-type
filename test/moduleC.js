@@ -1,5 +1,5 @@
 var assert = require('assert');
-var duck = require('../duck-type')();
+var duck = require('../duck-type').namespace();
 var mb = require('./moduleB');
 
 
