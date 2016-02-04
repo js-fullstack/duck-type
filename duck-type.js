@@ -1,6 +1,6 @@
 /***************************************************************
 * Duck define
-****************************************************************/	
+****************************************************************/
 function Duck(args){
 	if(this instanceof Duck) {
 		this.values = args;
@@ -105,17 +105,82 @@ function mute(option) {
 	}
 }
 
-function booleanHandler(duck, value, type) {
-	return duck;
+function booleanHandler(result, value, type) {
+	return result;
 }
 
-function throwHandler(duck, value, type) {
-	if(duck === false) {
+function throwHandler(result, value, type) {
+	if(result === false) {
 		throw Error([value,'is not compatible with',type].join(' '));
 	} else {
 		return true;
 	}
 }
+
+/****************************************************************
+* function of duck
+*****************************************************************/
+
+function validator(fn, mocker) {
+	fn.__duck_type_mocker__ = mocker;
+	return fn;
+}
+
+function asPrototype (obj) {
+	return function(value) {
+		return obj.isPrototypeOf(value);
+	};
+};
+
+function or() {
+	var args = Array.prototype.slice.call(arguments);
+	var result = function(value){
+		return args.some(function(type){
+			return Duck(value).is(type);
+		});
+	};
+	result.__duck_type_mocker__ = function() {
+		return mock(args[Math.floor(Math.random() * args.length)]);
+	};
+	return result;
+};
+
+
+function and(){
+	var args = Array.prototype.slice.call(arguments);
+	var result = function(value){
+		return !args.some(function(type){
+			return !Duck(value).is(type);
+		});
+	};
+	result.__duck_type_mocker__ = function() {
+		return args.reduce(function(tmp, type) {
+			var obj = mock(type);
+			Object.keys(obj).forEach(function(key) {
+				tmp[key] = obj[key];
+			});
+			return tmp;
+		}, {});
+	};
+	return result;
+};
+
+var undefinedValidator = validator(function(value){
+	return value === undefined;
+},function() {
+	return undefined;
+});
+
+var nullValidator = validator(function(value) {
+	return value === null;
+},function() {
+	return null;
+});
+
+function optional(type){
+	return or(type,undefinedValidator);
+};
+
 
 /***************************************************************
 * Mock of Build In.
@@ -146,98 +211,71 @@ _mock = {
 	'RegExp': function() { return /.*/; }
 };
 
+function mock(type) {
+	var result = mute(function(){
+		if(_isConstructor(type)) {
+			return _mock[type.name]?_mock[type.name](): new type();
+		} else if(typeof type  === 'function') {
+			var mocker = type.__duck_type_mocker__;
+			if(typeof mocker === 'function') {
+				return mocker();
+			} else {
+				throw new Error('can not mock type ' + type);
+			}
+		} else if (Duck(type).is(Array)) {
+			if(type.length === 0) {
+				return [];
+			} else if(type.length === 1) {
+				return (function(){
+					var len = Math.random() * 10, i=0 , result=[];
+					for(i; i<len; i++) {
+						result.push(mock(type[0]));
+					}
+					return result;
+				})();
+			} else {
+				return (function() {
+					var result = [], i=0, len=type.length;
+					for(i; i<len; i++) {
+						result.push(mock(type[i]));
+					}
+					return result;
+				})();
+			}
+		} else if(Duck(type).is(Object)) {
+			return (function(){
+				var result = {},keys = Object.keys(type);
+				Object.keys(type).forEach(function(key){
+					result[key] = mock(type[key]);
+				});
+				return result;
+			})();
+		}
+	});
+	
+	return result;
+}
+
 
 /****************************************************************
 * namespace 
 *****************************************************************/
 function namespace () {
-	var duck = function () {
+	var _duck = function () {
 		return new Duck(Array.prototype.slice.call(arguments));
 	};
 
-	function validator(fn, mocker) {
-		fn.__duck_type_mocker__ = mocker;
-		return fn;
-	}
-
-	duck.type = function (type, define) {
+	_duck.type = function (type, define) {
 		if(!_isValiderTypeName(type)) {
 			throw Error(type + ' is invalider type name');
 		}
-		duck[type] = define;
+		_duck[type] = define;
 	};
 
-	(function preparedbuildIn(){
-		duck.type('UNDEFINED', validator(function(value){
-			return value === undefined;
-		},function() {
-			return undefined;
-		}));
-
-		duck.type('NULL', validator(function(value) {
-			return value === null;
-		},function() {
-			return null;
-		}));
-	})();
-
-	/****************************************************************
-	* function of duck
-	*****************************************************************/
-	duck.mute = mute;
-
-	duck.validator = validator;
-
-	duck.asPrototype = function(obj) {
-		return function(value) {
-			return obj.isPrototypeOf(value);
-		};
-	};
-
-	duck.or = function (){
-		var args = Array.prototype.slice.call(arguments);
-		var result = function(value){
-			return args.some(function(type){
-				return duck(value).is(type);
-			});
-		};
-		result.__duck_type_mocker__ = function() {
-			return duck.mock(args[Math.floor(Math.random() * args.length)]);
-		};
-		return result;
-	};
-
-	function _copy(target, src) {
-
-	};
-
-	duck.and = function(){
-		var args = Array.prototype.slice.call(arguments);
-		var result = function(value){
-			return !args.some(function(type){
-				return !duck(value).is(type);
-			});
-		};
-		result.__duck_type_mocker__ = function() {
-			return args.reduce(function(tmp, type) {
-				var obj = duck.mock(type);
-				Object.keys(obj).forEach(function(key) {
-					tmp[key] = obj[key];
-				});
-				return tmp;
-			}, {});
-		};
-		return result;
-	};
-
-	duck.optional = function(type){
-		return duck.or(type,duck.UNDEFINED);
-	};
-
-	duck.bind = function (target) {
-		Object.keys(duck).filter(_isValiderTypeName).forEach(function(key) {
+	_duck.bind = function (target) {-
+		Object.keys(_duck).filter(_isValiderTypeName).forEach(function(key) {
 			if(target[key] === undefined) {
-				target[key] = duck[key];
+				target[key] = _duck[key];
 			} else {
 				throw Error('duplicate key found when binding ' + duck + ' to object ' + target + ' , key:' + key);
 			}
@@ -245,55 +283,23 @@ function namespace () {
 		return target;
 	};
 
-	/****************************************************
-	*
-	*****************************************************/
-	duck.mock = function(type) {
-		var result = mute(function(){
-			if(_isConstructor(type)) {
-				return _mock[type.name]?_mock[type.name](): new type();
-			} else if(typeof type  === 'function') {
-				var mocker = type.__duck_type_mocker__;
-				if(typeof mocker === 'function') {
-					return mocker();
-				} else {
-					throw new Error('can not mock type ' + type);
-				}
-			} else if (duck(type).is(Array)) {
-				if(type.length === 0) {
-					return [];
-				} else if(type.length === 1) {
-					return (function(){
-						var len = Math.random() * 10, i=0 , result=[];
-						for(i; i<len; i++) {
-							result.push(duck.mock(type[0]));
-						}
-						return result;
-					})();
-				} else {
-					return (function() {
-						var result = [], i=0, len=type.length;
-						for(i; i<len; i++) {
-							result.push(duck.mock(type[i]));
-						}
-						return result;
-					})();
-				}
-			} else if(duck(type).is(Object)) {
-				return (function(){
-					var result = {},keys = Object.keys(type);
-					Object.keys(type).forEach(function(key){
-						result[key] = duck.mock(type[key]);
-					});
-					return result;
-				})();
-			}
-		});
-		
-		return result;
-	}
+	(function preparedbuildIn(){
+		_duck.type('UNDEFINED', undefinedValidator);
+		_duck.type('NULL', nullValidator);
+	})();
 
-	return duck;
+	/****************************************************************
+	* function of _duck
+	*****************************************************************/
+	_duck.mute = mute;
+	_duck.validator = validator;
+	_duck.asPrototype = asPrototype;
+	_duck.or = or;
+	_duck.and = and;
+	_duck.optional = optional;
+	_duck.mock = mock;
+
+	return _duck;
 }
 
 

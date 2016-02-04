@@ -140,7 +140,8 @@ you can partially verify like this:
 
 you can verify type use logic of 'or', 'and', like:
 
-	duck(birthday).is(duck.or(Date,Number));  //means
+	duck(birthday).is(duck.or(Date,Number));  //means birthday can be a Data or a Number
+	duck(param1).is(duck.and(duck.Person, duck.User))
 
 -- example 7
 
