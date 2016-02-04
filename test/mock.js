@@ -33,6 +33,14 @@ describe('mock', function() {
 		assert(duck(duck.mock(Person)).is(Person));
 	});
 
+	it('support asPrototype',function() {
+		duck.type('Foo',duck.asPrototype({
+			name: 'hello',
+			age: 123
+		}));
+		duck(duck.mock(duck.Foo)).is(duck.Foo);
+	});
+
 	it('support undefined and null', function() {
 		assert(duck(duck.mock(duck.UNDEFINED)).is(duck.UNDEFINED));
 		assert(duck(duck.mock(duck.NULL)).is(duck.NULL));
