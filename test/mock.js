@@ -43,7 +43,10 @@ describe('mock', function() {
 		assert(duck(duck.mock(duck.Test)).is(duck.Test));
 	});
 
-	xit('support and, or',function() {
-
+	it('support and, or',function() {
+		duck.type('OrTest', duck.or(String,Number,Date));
+		assert(duck(duck.mock(duck.OrTest)).is(duck.OrTest));
+		duck.type('AndTest', duck.and({name:String},{age:Number}));
+		assert(duck(duck.mock(duck.AndTest)).is(duck.AndTest));
 	});
 });

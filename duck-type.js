@@ -131,12 +131,15 @@ _mock = {
 	'Number': function() { return Math.random() * 10000;},
 	'Boolean': function() {return Math.random() >= 0.5? true: false;},
 	'Date': function() { return new Date((new Date().getTime()) * Math.random());},
-	'Object': function() { return  {}},
+	'Object': function() {
+		var types = ['String','Number','Boolean','Date','Function','RegExp'];
+		return  _mock[types[Math.floor(Math.random() * types.length)]]();
+	},
 	'Function': function() { return function() {};},
 	'Array': function() {
-		var result = [],i=0, len=Math.random() * 10, types = ['String','Number','Boolean','Date','Function','RegExp'];
+		var result = [],i=0, len=Math.random() * 10;
 		for(i; i<len; i++) {
-			result.push(_mock[types[Math.floor(Math.random() * types.length)]]());
+			result.push(_mock['Object']());
 		}
 		return result;
 	},
@@ -204,13 +207,27 @@ function namespace () {
 		return result;
 	};
 
+	function _copy(target, src) {
+
+	};
+
 	duck.and = function(){
 		var args = Array.prototype.slice.call(arguments);
-		return function(value){
+		var result = function(value){
 			return !args.some(function(type){
 				return !duck(value).is(type);
 			});
 		};
+		result.__duck_type_mocker__ = function() {
+			return args.reduce(function(tmp, type) {
+				var obj = duck.mock(type);
+				Object.keys(obj).forEach(function(key) {
+					tmp[key] = obj[key];
+				});
+				return tmp;
+			}, {});
+		};
+		return result;
 	};
 
 	duck.optional = function(type){
