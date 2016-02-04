@@ -25,18 +25,14 @@ Duck.prototype = {
 					return type(self.value);
 				} else if(Duck(type).is(Array)) {
 					return Duck(self.value).is(Array) && (function() {
-						var i=0, len=type.length;
 						if(type.length === 0) {
 							return true;
 						} else if(type.length === 1) {
 							return !self.value.some(function(v){ return !Duck(v).is(type[0]); });
 						} else {
-							for(i; i<len; i++) {
-								if(!Duck(self.value[i]).is(type[i])) {
-									return false;
-								}
-							}
-							return true;
+							return !type.some(function(t,i){
+								return !Duck(self.value[i]).is(t); 
+							});
 						}
 					})();
 				} else if(Duck(type).is(Object)) {
