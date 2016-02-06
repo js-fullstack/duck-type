@@ -1,6 +1,6 @@
 {
   "name": "duck-type",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Duck Type System",
   "main": "duck-type.js",
   "scripts": {
@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/js-fullstack/duck-type/issues"
   },
-  "homepage": "https://github.com/js-fullstack/duck-type",
+  "homepage": "http://js-fullstack.github.io/duck-type",
   "devDependencies": {
     "mocha": "^2.3.4"
   }
