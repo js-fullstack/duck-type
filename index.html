@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Duck-type by js-fullstack</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Duck-type</h1>
+      <h2 class="project-tagline">Duck type system</h2>
+      <a href="https://github.com/js-fullstack/duck-type" class="btn">View on GitHub</a>
+      <a href="https://github.com/js-fullstack/duck-type/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/js-fullstack/duck-type/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="duck-type" class="anchor" href="#duck-type" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>duck-type</h1>
+
+<p>duck type is a JS library, which can be used to verify parameter, define reuseable data structre, mock data... The purpose of duck-type is try to help you to build up 'Complicated But Robust JS Program', especially when you have to teamwork with others, or developing your code based on unstable API.</p>
+
+<p>introduce in 5 minutes. </p>
+
+<p>Prepare in version on nodejs:</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-k">var</span> duck <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>../duck-type<span class="pl-pds">'</span></span>).<span class="pl-en">namespace</span>();</pre></div>
+
+<h2>
+<a id="part-one-validtion-" class="anchor" href="#part-one-validtion-" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Part One, validtion: </h2>
+
+<p>let us get start with examples:</p>
+
+<h3>
+<a id="example-1" class="anchor" href="#example-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example 1</h3>
+
+<p>support we have to implement a function foo(param1) {...}, and we want to make sure that param1 should be a String</p>
+
+<p>you can verify the type of param1 like this:</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-k">function</span> <span class="pl-en">foo</span>(<span class="pl-smi">param1</span>) {
+        <span class="pl-en">duck</span>(param1).<span class="pl-en">is</span>(<span class="pl-c1">String</span>);
+        <span class="pl-k">...</span>
+    }</pre></div>
+
+<p>you also can verify many parameters at once, like:</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-en">duck</span>(param1, param2).<span class="pl-en">are</span>(<span class="pl-c1">String</span>, <span class="pl-c1">Number</span>);   </pre></div>
+
+<h3>
+<a id="example-2" class="anchor" href="#example-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example 2</h3>
+
+<p>how about complex object like:</p>
+
+<div class="highlight highlight-source-js"><pre>  {
+    name<span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">'</span>hello<span class="pl-pds">'</span></span>, 
+    age<span class="pl-k">:</span> <span class="pl-c1">12345</span>
+  };</pre></div>
+
+<p>you can verify it like:</p>
+
+<pre><code>    duck(param1).is({
+      name:String, 
+      age:Number
+    });
+</code></pre>
+
+<p>note, the following object can also be passed, which means, relative to validator defination, the property can be more, but can not be less:</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-en">duck</span>({             <span class="pl-c">//also can be passed, means the object is compatible with  the type</span>
+      name<span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">'</span>hello<span class="pl-pds">'</span></span>, 
+      age<span class="pl-k">:</span> <span class="pl-c1">12345</span>, 
+      something<span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">'</span>foo<span class="pl-pds">'</span></span>}
+     ).<span class="pl-en">is</span>({name<span class="pl-k">:</span><span class="pl-c1">String</span>, age<span class="pl-k">:</span><span class="pl-c1">Number</span>}); </pre></div>
+
+<h3>
+<a id="example-3" class="anchor" href="#example-3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example 3</h3>
+
+<p>you can verify the more complicated object like this:</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-en">duck</span>(param1).<span class="pl-en">is</span>({
+        name <span class="pl-k">:</span> {
+          first<span class="pl-k">:</span><span class="pl-c1">String</span>, 
+          last<span class="pl-k">:</span><span class="pl-c1">String</span>
+        },
+        age<span class="pl-k">:</span> <span class="pl-c1">Number</span>,
+        sayHello<span class="pl-k">:</span> <span class="pl-c1">Function</span>
+    });</pre></div>
+
+<p>here :
+  'sayHello': Function means target object which to verified must have a method which named 'sayHello'.</p>
+
+<p>'name', is a nest object.</p>
+
+<h3>
+<a id="example-4" class="anchor" href="#example-4" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example 4</h3>
+
+<p>For array, duck-type can support different and interseting pattern:</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-en">duck</span>(x).<span class="pl-en">is</span>([]); <span class="pl-c">//means x must be a array, it eaual to is(Array)</span>
+
+    <span class="pl-en">duck</span>(X).<span class="pl-en">is</span>([<span class="pl-c1">Number</span>]); <span class="pl-c">//means x must be a array, and each element of the array must be a Number</span>
+
+    <span class="pl-en">duck</span>(X).<span class="pl-en">is</span>([<span class="pl-c1">Number</span>,<span class="pl-c1">String</span>,<span class="pl-c1">Date</span>]); 
+    <span class="pl-c">//means x must be a array, and the first element  must be a Number, the second element must be a String....</span></pre></div>
+
+<p>Of cause, you can combine defination of array and defination of object, like;</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-en">duck</span>(param1).<span class="pl-en">is</span>({
+    title<span class="pl-k">:</span> <span class="pl-c1">String</span>,
+    description<span class="pl-k">:</span> <span class="pl-c1">String</span>,
+      resourceDemands<span class="pl-k">:</span> [{
+          resourceTypeId<span class="pl-k">:</span> <span class="pl-c1">Number</span>,
+          year<span class="pl-k">:</span> <span class="pl-c1">Number</span>,
+          month<span class="pl-k">:</span> <span class="pl-c1">Number</span>,
+          quantity<span class="pl-k">:</span> <span class="pl-c1">Number</span>
+          }]
+  })</pre></div>
+
+<h2>
+<a id="part-two-define-data-structure-so-called-duck-type" class="anchor" href="#part-two-define-data-structure-so-called-duck-type" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Part Two, define data structure, so-called duck type:</h2>
+
+<p>Don't stop with verify. Declare the data structure and re-use them might be a better choice.</p>
+
+<h3>
+<a id="example-5" class="anchor" href="#example-5" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example 5</h3>
+
+<p>How to define type? Just do it like:</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-smi">duck</span>.<span class="pl-c1">type</span>(<span class="pl-s"><span class="pl-pds">'</span>ResourceDemand<span class="pl-pds">'</span></span>,{  <span class="pl-c">//now, we defined a type ResourceDemand</span>
+        resourceTypeId<span class="pl-k">:</span> <span class="pl-c1">Number</span>,
+        year<span class="pl-k">:</span> <span class="pl-c1">Number</span>,
+        month<span class="pl-k">:</span> <span class="pl-c1">Number</span>,
+        quantity<span class="pl-k">:</span> <span class="pl-c1">Number</span>
+    });</pre></div>
+
+<p>And how to use it? It is easy.</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-en">duck</span>(param1).<span class="pl-en">is</span>(<span class="pl-smi">duck</span>.<span class="pl-smi">ResourceDemand</span>);</pre></div>
+
+<h3>
+<a id="example-6" class="anchor" href="#example-6" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example 6</h3>
+
+<p>You can define some basic type, even like java.lang.Integer</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-smi">duck</span>.<span class="pl-c1">type</span>(<span class="pl-s"><span class="pl-pds">'</span>Integer<span class="pl-pds">'</span></span>,<span class="pl-k">function</span>(<span class="pl-smi">value</span>){
+        <span class="pl-k">return</span> <span class="pl-en">duck</span>(value).<span class="pl-en">is</span>(<span class="pl-c1">Number</span>) <span class="pl-k">&amp;&amp;</span> value <span class="pl-k">%</span> <span class="pl-c1">1</span> <span class="pl-k">===</span> <span class="pl-c1">0</span> <span class="pl-k">&amp;&amp;</span> value <span class="pl-k">&gt;=</span> <span class="pl-k">-</span><span class="pl-c1">2147483648</span> <span class="pl-k">&amp;&amp;</span> value <span class="pl-k">&lt;=</span> <span class="pl-c1">2147483647</span>;
+    });</pre></div>
+
+<p>You also can define bussiness type like:</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-smi">duck</span>.<span class="pl-c1">type</span>(<span class="pl-s"><span class="pl-pds">'</span>Email<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">value</span>) {
+        <span class="pl-k">...</span>
+    });
+
+    <span class="pl-smi">duck</span>.<span class="pl-c1">type</span>(<span class="pl-s"><span class="pl-pds">'</span>IpAddress<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">value</span>) {
+        <span class="pl-k">...</span>
+    })</pre></div>
+
+<p>Here, the callback function will be as a validator when test target, and the target will be pass to callback by parameter 'value'.</p>
+
+<h3>
+<a id="example-7" class="anchor" href="#example-7" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example 7</h3>
+
+<p>You can leverage type which alreay definedto defined your new type, I mean:</p>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-smi">duck</span>.<span class="pl-c1">type</span>(<span class="pl-s"><span class="pl-pds">'</span>Proposal<span class="pl-pds">'</span></span>,{
+        id<span class="pl-k">:</span> <span class="pl-smi">duck</span>.<span class="pl-smi">Integer</span>
+        title<span class="pl-k">:</span> <span class="pl-c1">String</span>,
+        description<span class="pl-k">:</span> <span class="pl-c1">String</span>,
+        resourceDemands<span class="pl-k">:</span> [<span class="pl-smi">duck</span>.<span class="pl-smi">ResourceDemand</span>]
+    }); </pre></div>
+
+<h2>
+<a id="part-three-mock-data" class="anchor" href="#part-three-mock-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Part Three, mock data:</h2>
+
+<p>Type define first is encouraged, it is practice of 'Convention First'. And if your have defined a type already. 'mock' is another benefit provoided by duck-type.</p>
+
+<h3>
+<a id="example-8" class="anchor" href="#example-8" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example 8</h3>
+
+<div class="highlight highlight-source-js"><pre>    <span class="pl-smi">duck</span>.<span class="pl-en">mock</span>(<span class="pl-smi">duck</span>.<span class="pl-smi">Proposal</span>); <span class="pl-c">//it will return an object, which must compatible with type Proposal.</span></pre></div>
+
+<p>I mean, </p>
+
+<div class="highlight highlight-source-js"><pre>    {
+      id<span class="pl-k">:</span> <span class="pl-c1">112</span>,
+        title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>sdfasf adsf<span class="pl-pds">'</span></span>,
+        description<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>sdfsdf sdf 234s sd<span class="pl-pds">'</span></span>,
+        resourceDemands<span class="pl-k">:</span> [{
+            resourceTypeId<span class="pl-k">:</span> <span class="pl-c1">123</span>,
+            year<span class="pl-k">:</span> <span class="pl-c1">2343</span>,
+            month<span class="pl-k">:</span> <span class="pl-c1">234</span>,
+            quantity<span class="pl-k">:</span> <span class="pl-c1">444</span>
+        }]
+    }</pre></div>
+
+<p>The object like above might be return, of cause, most of value will be changed randomly.</p>
+
+<p>Type define first. then start your work with mock data, then verify parameter at product  runtime.</p>
+
+<h2>
+<a id="end" class="anchor" href="#end" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>End</h2>
+
+<p>The library duck-type is still developing continully, and we except any of your comments. Thanks :) </p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/js-fullstack/duck-type">Duck-type</a> is maintained by <a href="https://github.com/js-fullstack">js-fullstack</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
