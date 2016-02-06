@@ -601,6 +601,21 @@ describe('partially check',function() {
     assert(duck(123).is(duck.Person.age));
 });
 
+describe('parameterize',function() {
+
+    duck.type('Range', duck.parameterize(function(value, a, b){
+        return duck(value).is(Number) && value >= a && value <=b; 
+    },function(a, b){
+        return a + Math.random() * (b - a);
+    }));
+
+    assert(duck(3).is(duck.Range(2,4)));
+    assert.throws(function(){
+        duck(5).is(duck.Range(2,4));
+    });
+    assert(duck(duck.mock(duck.Range(2,4))).is(duck.Range(2,4)));
+});
+
 describe('mute', function() {
     it('duck(xxx).is(XXX) will not throw Error when it as a validator executed in context duck.type', function() {
         var checkpoint = false;

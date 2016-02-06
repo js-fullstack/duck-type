@@ -169,6 +169,20 @@ function optional(type){
 	return or(type,undefinedValidator);
 };
 
+function parameterize(fn, mockFn) {
+    return function() {
+        var args = Array.prototype.slice.call(arguments);
+        var result =  function(value) {
+            return fn.apply(undefined,[value].concat(args));
+        };
+        if(typeof mockFn === 'function') {
+            result.__duck_type_mocker__ = function() {
+                return mockFn.apply(undefined,args);
+            }
+        }
+        return result;
+    };
+};
 
 /***************************************************************
 * Mock of Build In.
@@ -285,6 +299,7 @@ function namespace () {
 	_duck.and = and;
 	_duck.optional = optional;
 	_duck.mock = mock;
+	_duck.parameterize = parameterize;
 
 	return _duck;
 }
