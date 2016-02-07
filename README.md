@@ -1,178 +1,181 @@
-duck-type
-==================
-duck type is a JS library, which can be used to verify parameter, define reuseable data structre, mock data... The purpose of duck-type is try to help you to build up 'Complicated But Robust JS Program', especially when you have to teamwork with others, or developing your code based on unstable API.
+# duck-type
 
-introduce in 5 minutes. 
+Duck type is a JavaScript library, which provide a **natural way** to define and validate your data structure in JavaScript. The purpose of this library is try to help you to build up 'Complicated But Robust JavaScript Program', especially when you have to teamwork with other peoples, or developing your code based on unstable API.
 
-Prepare in version on nodejs:
-```javascript
-	var duck = require('../duck-type').namespace();
+## Getting Started 
+
+Currently, duck-type can only support version on NodeJS:
+```Bash
+   npm install duck-type
 ```
-Part One, validtion: 
----------------------
-
-let us get start with examples:
-
-### example 1
-support we have to implement a function foo(param1) {...}, and we want to make sure that param1 should be a String
-
-you can verify the type of param1 like this:
+and, use it in your code, like:
 ```javascript
-	function foo(param1) {
-		duck(param1).is(String);
-		...
-	}
+  var duck = require('../duck-type').namespace();
 ```
-you also can verify many parameters at once, like:
-```javascript
-	duck(param1, param2).are(String, Number);	
+### Validation: 
+
+Let us get start with validation:
+
+#### Example 1
+Suppose we have to implement a function:
+```JavaScript
+  function foo(param1) {
+    ...
+  }
+``` 
+and we want to make sure that 'param1' should be a String, we can verify the type of 'param1' like this:
+```JavaScript
+  function foo(param1) {
+    duck(param1).is(String);
+    ...
+  }
+```
+We also can verify many parameters at once, like:
+```JavaScript
+    duck(param1, param2).are(String, Number);	
 ```
 
-### example 2
+#### Example 2
 
-how about complex object like:
-```javascript
+How about complex object like:
+```JavaScript
   {
     name:'hello', 
     age: 12345
   };
 ```
-you can verify it like:
+We can verify it like:
 ```
-	duck(param1).is({
-	  name:String, 
-	  age:Number
-	});
+  duck(param1).is({
+    name:String, 
+    age:Number
+  });
 ```
-note, the following object can also be passed, which means, relative to validator defination, the property can be more, but can not be less:
-```javascript
-	duck({             //also can be passed, means the object is compatible with  the type
-	  name:'hello', 
-	  age: 12345, 
-	  something:'foo'}
-	 ).is({name:String, age:Number}); 
+Note, the following object can also be passed, which means, relative to definition, the property can be 'more', but can not be 'less':
+```JavaScript
+  duck({             //also can be passed, means the object is compatible with  the type
+    name:'hello', 
+    age: 12345, 
+    something:'foo'}
+  ).is({
+    name:String, 
+    age:Number
+  }); 
 ```
-### example 3
+#### Example 3
 
-you can verify the more complicated object like this:
-```javascript
-	duck(param1).is({
-		name : {
-		  first:String, 
-		  last:String
-		},
-		age: Number,
-		sayHello: Function
-	});
+We can verify the more complicated object like this:
+```JavaScript
+  duck(param1).is({
+    name : {
+      first:String, 
+      last:String
+    },
+    age: Number,
+    sayHello: Function
+    });
 ```	
-here :
-  'sayHello': Function means target object which to verified must have a method which named 'sayHello'.
+Here :
+
+  'sayHello': Function means target object which to verified must have a method named 'sayHello'.
   
   'name', is a nest object.
 
-### example 4
+#### Example 4
 
-For array, duck-type can support different and interseting pattern:
-```javascript
-	duck(x).is([]); //means x must be a array, it eaual to is(Array)
+For array, duck-type can support different pattern:
+```JavaScript
+  duck(x).is([]); //means x must be a array, it eaual to is(Array)
 	
-	duck(X).is([Number]); //means x must be a array, and each element of the array must be a Number
+  duck(X).is([Number]); //means x must be a array, and each element of the array must be a Number
 	
-	duck(X).is([Number,String,Date]); 
-	//means x must be a array, and the first element  must be a Number, the second element must be a String....
+  duck(X).is([Number,String,Date]); 
+  //means x must be a array, and the first element  must be a Number, the second element must be a String....
 ```
-Of cause, you can combine defination of array and defination of object, like;
-```javascript
+Of cause, we can combine definition of array and object, like;
+```JavaScript
   duck(param1).is({
     title: String,
     description: String,
       resourceDemands: [{
-		  resourceTypeId: Number,
-		  year: Number,
-		  month: Number,
-		  quantity: Number
-		  }]
+        resourceTypeId: Number,
+        year: Number,
+        month: Number,
+        quantity: Number
+    }]
   })
 ```
-Part Two, define data structure, so-called duck type:
------------------------
+
+### Define our data structure, so-called duck type:
+
 Don't stop with verify. Declare the data structure and re-use them might be a better choice.
 
-### example 5
+#### Example 5
 
 How to define type? Just do it like:
-```javascript
+```JavaScript
   duck.type('ResourceDemand',{	//now, we defined a type ResourceDemand
-		resourceTypeId: Number,
-		year: Number,
-		month: Number,
-		quantity: Number
-	});
+    resourceTypeId: Number,
+    year: Number,
+    month: Number,
+    quantity: Number
+  });
 ```
 
 And how to use it? It is easy.
-```javascript
+```JavaScript
 	duck(param1).is(duck.ResourceDemand);
 ```
-### example 6
+#### Example 6
 
-You can define some basic type, even like java.lang.Integer
-```javascript
+We can define some basic type, even like java.lang.Integer
+```JavaScript
 	duck.type('Integer',function(value){
 		return duck(value).is(Number) && value % 1 === 0 && value >= -2147483648 && value <= 2147483647;
 	});
 ```
-You also can define bussiness type like:
-```javascript
-	duck.type('Email', function(value) {
-		...
-	});
-	
-	duck.type('IpAddress', function(value) {
-		...
-	})
-```	
-Here, the callback function will be as a validator when test target, and the target will be pass to callback by parameter 'value'.
+Here, by define the validate function we can decided what is 'Integer' in our program.
 
-### example 7
+#### Example 7
 
-You can leverage type which alreay definedto defined your new type, I mean:
-```javascript
-	duck.type('Proposal',{
-		id: duck.Integer
-		title: String,
-		description: String,
-		resourceDemands: [duck.ResourceDemand]
-	});	
+We can defined your new type by leverage data structure which have already defined, I mean:
+```JavaScript
+  duck.type('Proposal',{
+    id: duck.Integer
+    title: String,
+    description: String,
+    resourceDemands: [duck.ResourceDemand]
+});	
 ```
 
-Part Three, mock data:
--------------------------
-Type define first is encouraged, it is practice of 'Convention First'. And if your have defined a type already. 'mock' is another benefit provoided by duck-type.
+### Other interesting features:
 
-### example 8
-```javascript
-	duck.mock(duck.Proposal); //it will return an object, which must compatible with type Proposal.
+Type define first is encouraged, it is practice of 'Convention First'. And if your have defined a type already. 'mock' is another benefit provided by duck-type.
+
+#### Example 8
+```JavaScript
+  duck.mock(duck.Proposal);  //it will return an object, which must compatible with type Proposal.
 ```
 I mean, 
 ```javascript	
-	{
-	  id: 112,
-		title: 'sdfasf adsf',
-		description: 'sdfsdf sdf 234s sd',
-		resourceDemands: [{
-			resourceTypeId: 123,
-			year: 2343,
-			month: 234,
-			quantity: 444
-		}]
-	}
+  {
+    id: 112,
+    title: 'sdfasf adsf',
+    description: 'sdfsdf sdf 234s sd',
+    resourceDemands: [{
+      resourceTypeId: 123,
+      year: 2343,
+      month: 234,
+      quantity: 444
+    }]
+  }
 ```
 The object like above might be return, of cause, most of value will be changed randomly.
 
-Type define first. then start your work with mock data, then verify parameter at product  runtime.
 
-End
---------------------------
-The library duck-type is still developing continully, and we except any of your comments. Thanks :) 
+###End
+
+The library duck-type is still developing continually, more interesting feature will be bring to you. We also except any of your comments. 
+
+Thanks :) 
 
