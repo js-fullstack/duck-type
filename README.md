@@ -51,7 +51,7 @@ We can verify it like:
     age:Number
   });
 ```
-Note, the following object can also be passed, which means, relative to definition, the property can be 'more', but can not be 'less':
+Note, the following object can also be passed, which means, relative to definition, the properties can be 'more', but can not be 'less':
 ```JavaScript
   duck({             //also can be passed, means the object is compatible with  the type
     name:'hello', 
@@ -138,7 +138,7 @@ Here, by define the validate function we can decided what is 'Integer' in our pr
 
 #### Example 7
 
-We can defined your new type by leverage data structure which have already defined, I mean:
+We can defined new type by leverage data structure which have already defined, I mean:
 ```JavaScript
   duck.type('Proposal',{
     id: duck.Integer
@@ -150,9 +150,12 @@ We can defined your new type by leverage data structure which have already defin
 
 ### Other interesting features:
 
+#### Example 8
+
+##### Mock data. 
+
 Type define first is encouraged, it is practice of 'Convention First'. And if your have defined a type already. 'mock' is another benefit provided by duck-type.
 
-#### Example 8
 ```JavaScript
   duck.mock(duck.Proposal);  //it will return an object, which must compatible with type Proposal.
 ```
@@ -172,7 +175,55 @@ I mean,
 ```
 The object like above might be return, of cause, most of value will be changed randomly.
 
+#### Example 9
 
+##### Optional property
+
+The type can define optional property for an object by using function duck.optional.
+
+```JavaScript
+  duck.type('Profile', {
+    name: String,
+    skill: duck.optional([String])
+  });
+```
+Here, name is mandatory property and the value of it must be a String, skill is a **optional property**, it can be undefined, BUT, if it has value, the value must be a array and which element must be a String.
+
+#### Example 10
+
+##### Operator: And, Or
+
+Dynamic data type of arguments is common in JavaScript. which means we need operator 'Or',
+
+```JavaScript
+  Duck.type('Config',{   //here is definition of type 'Config'
+    id: Number,
+    layout: [String]
+  });
+  Duck(x).is(duck.or(String, duck.Config));
+```
+Here, the value of parameter 'x' can be a String, or can be a complex config object.
+
+#### Example 11
+
+##### Implement Interfaces
+
+In Java world, we often need make sure a Object must implements Interface A, Interface B... Similarly, operator 'And' can used for this purpose in JavaScript.
+
+```JavaScript
+  Duck.type('Config',{ //here is definition of type 'Config'
+    orderBy:[String]
+    layout: [String]
+  });
+
+ Duck.type('Query',{ //here is definition of type 'Query'
+    table: String,
+    id: Number
+  });
+
+ Duck(x).is(duck.and(duck.Config, duck.Query)); 
+```
+Here, we want to make sure the value of 'x' must implements type 'Config', and type 'Query', that means in duck typing world, x can used as a 'Config' object, and also can be used as 'Query' object at same time. 
 ###End
 
 The library duck-type is still developing continually, more interesting feature will be bring to you. We also except any of your comments. 
