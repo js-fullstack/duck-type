@@ -259,9 +259,9 @@ function mock(type) {
 
 
 /****************************************************************
-* namespace 
+* instance 
 *****************************************************************/
-function namespace () {
+function instance () {
 	var _duck = function () {
 		return new Duck(Array.prototype.slice.call(arguments));
 	};
@@ -304,4 +304,4 @@ function namespace () {
 	return _duck;
 }
 
-exports.namespace = namespace;
+exports.instance = instance;

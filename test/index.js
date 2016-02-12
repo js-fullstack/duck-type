@@ -1,5 +1,5 @@
 var assert = require('assert');
-var duck = require('../duck-type').namespace();
+var duck = require('../duck-type').instance();
 
 
 describe('duck-type', function() {
@@ -548,18 +548,18 @@ describe('duck-type', function() {
     });
 });
 
-describe('namespace',function() {
+describe('instance',function() {
     it('happy path', function() {
-        var duck1 = require('../duck-type').namespace();
+        var duck1 = require('../duck-type').instance();
         duck1.type('HELLO',String);
-        var duck2 = require('../duck-type').namespace();
+        var duck2 = require('../duck-type').instance();
         assert(duck1('hello').is(duck1.HELLO));
         assert(duck2('hello').is(duck1.HELLO));
     });
 
     it('import happy path', function() {
         function exportAbc() {
-            var abc = require('../duck-type').namespace();
+            var abc = require('../duck-type').instance();
             abc.type('HELLO',function(v) {
                 return duck(v).is(String);
             });
@@ -567,14 +567,14 @@ describe('namespace',function() {
         }
 
         function exportXyz() {
-            var xyz = require('../duck-type').namespace();
+            var xyz = require('../duck-type').instance();
             var abc = exportAbc();
             xyz.type('Person',{
                 name: abc.HELLO
             });
             return xyz;
         }
-        var duck = require('../duck-type').namespace();
+        var duck = require('../duck-type').instance();
         var xyz = exportXyz();
         duck.type('Test',function(v) {
             return duck(v).is(xyz.Person);
