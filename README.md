@@ -187,7 +187,7 @@ The type can define optional property for an object by using function duck.optio
     skill: duck.optional([String])
   });
 ```
-Here, name is mandatory property and the value of it must be a String, skill is a **optional property**, it can be undefined, BUT, if it has value, the value must be a array and which element must be a String.
+Here, 'name' is mandatory property and the value of it must be a String, 'skill' is a **optional property**, it can be undefined, BUT, if it has value, the value must be a array and which elements must be a String.
 
 #### Example 10
 
@@ -208,7 +208,7 @@ Here, the value of parameter 'x' can be a String, or can be a complex config obj
 
 ##### Implement Interfaces
 
-In Java world, we often need make sure a Object must implements Interface A, Interface B... Similarly, operator 'And' can used for this purpose in JavaScript.
+In Java world, we often need make sure a Object must implement Interface A, Interface B... Similarly, operator 'And' can used for this purpose in JavaScript.
 
 ```JavaScript
   Duck.type('Config',{ //here is definition of type 'Config'
@@ -223,7 +223,7 @@ In Java world, we often need make sure a Object must implements Interface A, Int
 
  Duck(x).is(duck.and(duck.Config, duck.Query)); 
 ```
-Here, we want to make sure the value of 'x' must implements type 'Config', and type 'Query', that means in duck typing world, x can used as a 'Config' object, and also can be used as 'Query' object at same time. 
+Here, we want to make sure the value of 'x' must implement type 'Config', and type 'Query', that means in duck typing world, x can used as a 'Config' object, and also can be used as 'Query' object at same time. 
 ###End
 
 The library duck-type is still developing continually, more interesting feature will be bring to you. We also except any of your comments. 
