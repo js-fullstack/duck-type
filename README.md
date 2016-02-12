@@ -10,7 +10,7 @@ Currently, duck-type can only support version on NodeJS:
 ```
 and, use it in your code, like:
 ```javascript
-  var duck = require('../duck-type').namespace();
+  var duck = require('../duck-type').instance();
 ```
 ### Validation: 
 
