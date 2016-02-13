@@ -228,5 +228,8 @@ Here, we want to make sure the value of 'x' must implement type 'Config', and ty
 
 The library duck-type is still developing continually, more interesting feature will be bring to you. We also except any of your comments. 
 
+----------------
+More information can be get by accessing [Wiki page](https://github.com/js-fullstack/duck-type/wiki)
+
 Thanks :) 
 
