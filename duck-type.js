@@ -95,7 +95,7 @@ function _booleanHandler(result, value, type) {
 
 function _throwHandler(result, value, type) {
 	if(result === false) {
-		throw Error([value,'is not compatible with',type].join(' '));
+		throw new IncompatibleTypeError([value,'is not compatible with',type].join(' '));
 	} else {
 		return true;
 	}
@@ -257,6 +257,18 @@ function mock(type) {
 	return result;
 }
 
+/****************************************************************
+* Error 
+*****************************************************************/
+function IncompatibleTypeError(message) {
+	var result = Error.call(this, message);
+	result.name = 'IncompatibleTypeError';
+	return result;
+};
+
+IncompatibleTypeError.prototype = Error.prototype;
+
+
 
 /****************************************************************
 * instance 
@@ -300,6 +312,8 @@ function instance () {
 	_duck.optional = optional;
 	_duck.mock = mock;
 	_duck.parameterize = parameterize;
+
+	_duck.IncompatibleTypeError = IncompatibleTypeError;
 
 	return _duck;
 }
