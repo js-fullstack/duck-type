@@ -94,8 +94,18 @@ function _booleanHandler(result, value, type) {
 }
 
 function _throwHandler(result, value, type) {
+	var typeMessage = '';
 	if(result === false) {
-		throw new IncompatibleTypeError([value,'is not compatible with',type].join(' '));
+		if(typeof type === 'function') {
+			if(type.__duck_type_name__) {
+				typeMessage = ['"',type.__duck_type_name__,'"'].join('');
+			} else if (_isConstructor(type)) {
+				typeMessage = type.name;
+			} else {
+				typeMessage = 'inline validation ' + type.toString();
+			}
+		}
+		throw new IncompatibleTypeError([value,'is not compatible with',typeMessage].join(' '));
 	} else {
 		return true;
 	}
@@ -283,6 +293,9 @@ function instance () {
 			throw Error(type + ' is invalider type name');
 		}
 		_duck[type] = define;
+		if(typeof define === 'function') {
+			define.__duck_type_name__ = type;
+		}
 	};
 
 	_duck.bind = function (target) {-

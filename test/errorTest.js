@@ -41,4 +41,33 @@ describe('Error test', function() {
         });
 
     });
+
+	describe('error message', function() {
+        it('value and type should be display in error message', function () {
+            try{
+            	duck(1).is(String);
+            } catch(e) {
+            	assert.equal(e.message, '1 is not compatible with String');
+            }
+        });
+
+        it('validation function will shown if inline validation function', function() {
+        	try{
+		        duck(1).is(function() { return false;});
+		    } catch(e) {
+		        	assert.equal(e.message, '1 is not compatible with inline validation function () { return false;}');
+		    }
+        });
+
+        it('name of type will shown if test type function', function() {
+        	try{
+        		duck.type('MyType', function() {
+        			return false;
+        		});
+		        duck(1).is(duck.MyType);
+		    } catch(e) {
+		        	assert.equal(e.message, '1 is not compatible with "MyType"');
+		    }
+        });
+	});
 });
