@@ -1,5 +1,5 @@
 var assert = require('assert');
-var duck = require('../duck-type').namespace();
+var duck = require('../duck-type').instance();
 
 
 describe('mock', function() {
@@ -31,6 +31,14 @@ describe('mock', function() {
 	it('support constructor', function() {
 		function Person() {}
 		assert(duck(duck.mock(Person)).is(Person));
+	});
+
+	it('support asPrototype',function() {
+		duck.type('Foo',duck.asPrototype({
+			name: 'hello',
+			age: 123
+		}));
+		duck(duck.mock(duck.Foo)).is(duck.Foo);
 	});
 
 	it('support undefined and null', function() {

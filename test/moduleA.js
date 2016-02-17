@@ -1,5 +1,5 @@
 var assert = require('assert');
-var duck = require('../duck-type').namespace();
+var duck = require('../duck-type').instance();
 
 duck.type('Integer', function (value) {
 	return duck(value).is(Number) && value % 1 === 0;

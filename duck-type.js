@@ -25,49 +25,33 @@ Duck.prototype = {
 					return type(self.value);
 				} else if(Duck(type).is(Array)) {
 					return Duck(self.value).is(Array) && (function() {
-						var i=0, len=type.length;
 						if(type.length === 0) {
 							return true;
 						} else if(type.length === 1) {
-							return !self.value.some(function(v){ return !Duck(v).is(type[0]); });
+							return self.value.every(function(v){ return Duck(v).is(type[0]); });
 						} else {
-							for(i; i<len; i++) {
-								if(!Duck(self.value[i]).is(type[i])) {
-									return false;
-								}
-							}
-							return true;
+							return type.every(function(t,i){
+								return Duck(self.value[i]).is(t); 
+							});
 						}
 					})();
 				} else if(Duck(type).is(Object)) {
-					return Duck(self.value).is(Object) && (function(){
-						var i=0, keys = Object.keys(type), len = keys.length;
-						for(i; i<len; i++) {
-							if(!Duck(self.value[keys[i]]).is(type[keys[i]])){
-								return false;
-							};
-						}
-						return true;
-					})();
+					return Duck(self.value).is(Object) &&  
+						Object.keys(type).every(function(key) {
+							return Duck(self.value[key]).is(type[key]);
+						});
 				} else {
 					return false;
 				}
 			});
-		return returnHandle(result, this.value, type);
+		return _returnHandle(result, self.value, type);
 	},
 
 	are : function(){
-		var self = this, args = Array.prototype.slice.call(arguments),i=0, len=args.length;
-		if(this.values.length !== args.length) {
-			return returnHandle(false, self.values, args);
-		}
-
-		for(i; i<len; i++) {
-			if(!Duck(this.values[i]).is(args[i])) {
-				return returnHandle(false, self.values, args);;
-			}
-		}
-		return returnHandle(true, self.values, args);
+		var self = this, args = Array.prototype.slice.call(arguments);
+		return _returnHandle(self.values.length === args.length && args.every(function(arg,i) {
+			return Duck(self.values[i]).is(arg);
+		}),self.values, args);
 	}
 };
 
@@ -86,30 +70,30 @@ function _isValiderTypeName(name) {
 /***************************************************************
 * mute and turn off
 ****************************************************************/
-var returnHandle = throwHandler;
+var _returnHandle = _throwHandler;
 
 function mute(option) {
-	var oldHandler = returnHandle, fn;
+	var oldHandler = _returnHandle, fn;
 	if(typeof option === 'function') {
 		fn = option;
-		returnHandle = booleanHandler;
+		_returnHandle = _booleanHandler;
 		try {
 			return fn();
 		} catch(e) {
 			throw e;
 		} finally {
-			returnHandle = oldHandler;
+			_returnHandle = oldHandler;
 		}
 	} else if(typeof option === 'boolean') {
-		returnHandle = option? booleanHandler : throwHandler;
+		_returnHandle = option? _booleanHandler : _throwHandler;
 	}
 }
 
-function booleanHandler(result, value, type) {
+function _booleanHandler(result, value, type) {
 	return result;
 }
 
-function throwHandler(result, value, type) {
+function _throwHandler(result, value, type) {
 	if(result === false) {
 		throw Error([value,'is not compatible with',type].join(' '));
 	} else {
@@ -127,9 +111,13 @@ function validator(fn, mocker) {
 }
 
 function asPrototype (obj) {
-	return function(value) {
+	var result = function(value) {
 		return obj.isPrototypeOf(value);
 	};
+	result.__duck_type_mocker__ = function() {
+		return Object.create(obj);
+	};
+	return result;
 };
 
 function or() {
@@ -140,7 +128,7 @@ function or() {
 		});
 	};
 	result.__duck_type_mocker__ = function() {
-		return mock(args[Math.floor(Math.random() * args.length)]);
+		return mock(args[_randomInt(args.length)]);
 	};
 	return result;
 };
@@ -149,8 +137,8 @@ function or() {
 function and(){
 	var args = Array.prototype.slice.call(arguments);
 	var result = function(value){
-		return !args.some(function(type){
-			return !Duck(value).is(type);
+		return args.every(function(type){
+			return Duck(value).is(type);
 		});
 	};
 	result.__duck_type_mocker__ = function() {
@@ -181,32 +169,55 @@ function optional(type){
 	return or(type,undefinedValidator);
 };
 
+function parameterize(fn, mockFn) {
+    return function() {
+        var args = Array.prototype.slice.call(arguments);
+        var result =  function(value) {
+            return fn.apply(undefined,[value].concat(args));
+        };
+        if(typeof mockFn === 'function') {
+            result.__duck_type_mocker__ = function() {
+                return mockFn.apply(undefined,args);
+            }
+        }
+        return result;
+    };
+};
 
 /***************************************************************
 * Mock of Build In.
 ****************************************************************/
+function _times(n) {
+	var result = [];
+	while(n-- > 0) {
+		result.push(n);
+	}
+	return result.reverse();
+}
+
+function _randomInt(n) {
+	return Math.floor(Math.random() * n);
+}
+
 _mock = {
 	'String': function() { 
-		var alpha = 'abcdefg hijklmn opqrst uvwxyz ABCDEFG HIGKLMN OPQRST UVWXYZ -_123456789 *',i=1; len=Math.floor(Math.random() * 100), result=[];
-		for(i; i<len; i++) {
-			result.push(alpha[Math.floor(alpha.length * Math.random())]);
-		}
-		return result.join(''); 
+		var alpha = 'abcdefg hijklmn opqrst uvwxyz ABCDEFG HIGKLMN OPQRST UVWXYZ -_123456789 *';
+		return _times(_randomInt(100)).reduce(function(tmp,i){
+			return tmp.concat(alpha[i]);
+		},[]).join('');
 	},
-	'Number': function() { return Math.random() * 10000;},
+	'Number': function() { return (Math.random() - 0.5)* 20000;},
 	'Boolean': function() {return Math.random() >= 0.5? true: false;},
-	'Date': function() { return new Date((new Date().getTime()) * Math.random());},
+	'Date': function() { return new Date(_randomInt(new Date().getTime()));},
 	'Object': function() {
 		var types = ['String','Number','Boolean','Date','Function','RegExp'];
-		return  _mock[types[Math.floor(Math.random() * types.length)]]();
+		return  _mock[types[_randomInt(types.length)]]();
 	},
 	'Function': function() { return function() {};},
 	'Array': function() {
-		var result = [],i=0, len=Math.random() * 10;
-		for(i; i<len; i++) {
-			result.push(_mock['Object']());
-		}
-		return result;
+		return _times(_randomInt(10)).reduce(function(tmp) {
+			return tmp.concat(_mock.Object());
+		},[]);
 	},
 	'RegExp': function() { return /.*/; }
 };
@@ -216,9 +227,8 @@ function mock(type) {
 		if(_isConstructor(type)) {
 			return _mock[type.name]?_mock[type.name](): new type();
 		} else if(typeof type  === 'function') {
-			var mocker = type.__duck_type_mocker__;
-			if(typeof mocker === 'function') {
-				return mocker();
+			if(typeof type.__duck_type_mocker__ === 'function') {
+				return type.__duck_type_mocker__();
 			} else {
 				throw new Error('can not mock type ' + type);
 			}
@@ -227,29 +237,20 @@ function mock(type) {
 				return [];
 			} else if(type.length === 1) {
 				return (function(){
-					var len = Math.random() * 10, i=0 , result=[];
-					for(i; i<len; i++) {
-						result.push(mock(type[0]));
-					}
-					return result;
+					return _times(_randomInt(10)).reduce(function(tmp,i){
+						return tmp.concat(mock(type[0]));
+					},[]);
 				})();
 			} else {
-				return (function() {
-					var result = [], i=0, len=type.length;
-					for(i; i<len; i++) {
-						result.push(mock(type[i]));
-					}
-					return result;
-				})();
+				return _times(type.length).reduce(function(tmp,i){
+					return tmp.concat(mock(type[i]));
+				},[]);
 			}
 		} else if(Duck(type).is(Object)) {
-			return (function(){
-				var result = {},keys = Object.keys(type);
-				Object.keys(type).forEach(function(key){
-					result[key] = mock(type[key]);
-				});
-				return result;
-			})();
+			return Object.keys(type).reduce(function(tmp, key){
+				tmp[key] = mock(type[key]);
+				return tmp;
+			},{});
 		}
 	});
 	
@@ -258,9 +259,9 @@ function mock(type) {
 
 
 /****************************************************************
-* namespace 
+* instance 
 *****************************************************************/
-function namespace () {
+function instance () {
 	var _duck = function () {
 		return new Duck(Array.prototype.slice.call(arguments));
 	};
@@ -298,9 +299,9 @@ function namespace () {
 	_duck.and = and;
 	_duck.optional = optional;
 	_duck.mock = mock;
+	_duck.parameterize = parameterize;
 
 	return _duck;
 }
 
-
-exports.namespace = namespace;
+exports.instance = instance;
