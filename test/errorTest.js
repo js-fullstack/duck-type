@@ -55,7 +55,7 @@ describe('Error test', function() {
         	try{
 		        duck(1).is(function() { return false;});
 		    } catch(e) {
-		        	assert.equal(e.message, '1 is not compatible with inline validation function () { return false;}');
+		        assert.equal(e.message, '1 is not compatible with inline validation function () { return false;}');
 		    }
         });
 
@@ -66,8 +66,54 @@ describe('Error test', function() {
         		});
 		        duck(1).is(duck.MyType);
 		    } catch(e) {
-		        	assert.equal(e.message, '1 is not compatible with "MyType"');
+		        assert.equal(e.message, '1 is not compatible with MyType');
 		    }
         });
+
+        it('object definiation will shown in error message if inline {}', function() {
+        	try{
+		        duck({xx:'hello'}).is({name: String});
+		    } catch(e) {
+		        assert.equal(e.message, '{ xx: \'hello\' } is not compatible with { name: String }');
+		    }
+        });
+
+        it('nest object definiation will shown in error message if inline {}', function() {
+        	try{
+		        duck({xx:'hello'}).is({name:{
+		        	first: String,
+		        	last:String
+		        }});
+		    } catch(e) {
+		        assert.equal(e.message, '{ xx: \'hello\' } is not compatible with { name: { first: String, last: String } }');
+		    }
+        });
+
+       it('content of type will shown if test type function', function() {
+        	try{
+        		duck.type('Person',{
+        			name: String
+        		});
+		        duck({xx:'hello'}).is(duck.Person);
+		    } catch(e) {
+		        assert.equal(e.message, '{ xx: \'hello\' } is not compatible with { name: String }');
+		    }
+        });
+
+        it('nest content of type will shown if test type function', function() {
+        	try{
+        		duck.type('Name',{
+        			first:String,
+        			last:String
+        		});
+        		duck.type('Person',{
+        			name: duck.Name
+        		});
+		        duck({xx:'hello'}).is(duck.Person);
+		    } catch(e) {
+		        assert.equal(e.message, '{ xx: \'hello\' } is not compatible with { name: { first: String, last: String } }');
+		    }
+        });
+
 	});
 });

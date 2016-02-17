@@ -1,3 +1,7 @@
+var util = require('util');
+
+//TODO _extend
+
 /***************************************************************
 * Duck define
 ****************************************************************/
@@ -93,19 +97,29 @@ function _booleanHandler(result, value, type) {
 	return result;
 }
 
-function _throwHandler(result, value, type) {
-	var typeMessage = '';
-	if(result === false) {
-		if(typeof type === 'function') {
-			if(type.__duck_type_name__) {
-				typeMessage = ['"',type.__duck_type_name__,'"'].join('');
-			} else if (_isConstructor(type)) {
-				typeMessage = type.name;
-			} else {
-				typeMessage = 'inline validation ' + type.toString();
-			}
+function _typeMessage(type) {
+	if(typeof type === 'function') {
+		if(type.__duck_type_name__) {
+			return type.__duck_type_name__;
+		} else if (_isConstructor(type)) {
+			return type.name;
+		} else {
+			return 'inline validation ' + type.toString();
 		}
-		throw new IncompatibleTypeError([value,'is not compatible with',typeMessage].join(' '));
+	} else if(Duck(type).is(Object)) {
+		return (function() {
+			return Object.keys(type).reduce(function (tmp, key) {
+				tmp[key] = _typeMessage(type[key]);
+				return tmp;
+			},{});
+		})();
+	}
+}
+
+
+function _throwHandler(result, value, type) {
+	if(result === false) {
+		throw new IncompatibleTypeError([util.inspect(value,{depth:null}),'is not compatible with',util.inspect(_typeMessage(type),{depth:null}).replace(/'/g,'')].join(' '));
 	} else {
 		return true;
 	}
@@ -292,10 +306,15 @@ function instance () {
 		if(!_isValiderTypeName(type)) {
 			throw Error(type + ' is invalider type name');
 		}
-		_duck[type] = define;
-		if(typeof define === 'function') {
-			define.__duck_type_name__ = type;
-		}
+
+		mute(function() {
+			_duck[type] = define;
+			if(Duck(define).is(or(Function,Array))) {
+				define.__duck_type_name__ = type;
+				
+			} 
+		});
+		
 	};
 
 	_duck.bind = function (target) {-
