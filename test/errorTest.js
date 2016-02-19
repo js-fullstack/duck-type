@@ -203,11 +203,48 @@ describe('Error test', function() {
         it('element which define type', function() {
         	try{
 		        duck([2,'hello','1970-10-10']).is([Number,String,Date]);
-		     } catch(e) {
+		    } catch(e) {
 		         assert.equal(e.message, '[2]: "1970-10-10" is not compatible with Date , which defined by inline validator : [Number,String,Date]');
-		     }
+		    }
         });
 	});
+
+    describe('build-in operator:',function(){
+        it('and', function() {
+            duck.type('Foo',{
+                name: String
+            });
+            duck.type('Bar',{
+                age: Number
+            });
+            var t = {
+                name: 'test'
+            };
+            try {
+                duck(t).is(duck.and(duck.Foo, duck.Bar));
+            } catch(e) {
+                assert(/^age: undefined is not compatible with Number , which defined by inline validator/.test(e.message));
+            }
+        });
+
+        xit('or', function() {
+            duck.type('Foo',{
+                name: String
+            });
+            duck.type('Bar',{
+                age: Number
+            });
+            var t = {
+                abc: 'test'
+            };
+            try {
+                duck(t).is(duck.or(duck.Foo, duck.Bar));
+            } catch(e) {
+                console.log('----->>------->', e.message);
+                assert(/^{ abc: "test"}: is not compatible with inline validator , which defined by inline validator/.test(e.message));
+            }
+        });
+    });
 
 	describe('array error message:',function(){
         it('complicate', function() {

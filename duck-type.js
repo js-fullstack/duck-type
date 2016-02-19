@@ -18,7 +18,18 @@ Duck.prototype = {
 			chain:[],
 			lastValue:undefined, 
 			lastType:undefined,
-			need: function() {	return this.chain.length > 0; }
+			need: function() {	return this.chain.length > 0; },
+			wrap: function(propertyName,type,value, fn) {
+				var result, self = this;
+				self.chain.push(propertyName);
+				self.lastValue = value;
+				self.lastType = type;
+				result = fn();
+				if(result) {
+					self.chain.pop();
+				}
+				return result;
+			}
 		};
 		if(['function','object'].indexOf(typeof type)  < 0) {
 			throw Error('only function or object can be type define, now type is (' + typeof type + ')');
@@ -28,49 +39,31 @@ Duck.prototype = {
 				if(_isConstructor(type)) {
 					return _instanceof(self.value,type);
 				} else if(typeof type === 'function') {
-					return type(self.value);
+					return type(self.value, propertiesStack);
 				} else if(Duck(type).is(Array)) {
 					return Duck(self.value).is(Array) && (function() {
 						if(type.length === 0) {
 							return true;
 						} else if(type.length === 1) {
 							return self.value.every(function(v,i){
-								var result; 
-								propertiesStack.chain.push('[' + i + ']');
-								propertiesStack.lastValue = v;
-								propertiesStack.lastType = type[0];
-								result =  Duck(v).is(type[0],propertiesStack); 
-								if(result) {
-									propertiesStack.chain.pop();
-								}
-								return result;
+								return propertiesStack.wrap('[' + i + ']',type[0], v, function() {
+									return Duck(v).is(type[0],propertiesStack);
+								});
 							});
 						} else {
 							return type.every(function(t,i){
-								var result; 
-								propertiesStack.chain.push('[' + i + ']');
-								propertiesStack.lastValue = self.value[i];
-								propertiesStack.lastType = t;
-								result =  Duck(self.value[i]).is(t,propertiesStack); 
-								if(result) {
-									propertiesStack.chain.pop();
-								}
-								return result;
+								return propertiesStack.wrap('[' + i + ']', t, self.value[i], function() {
+									return Duck(self.value[i]).is(t,propertiesStack);
+								});
 							});
 						}
 					})();
 				} else if(Duck(type).is(Object)) {
 					return Duck(self.value).is(Object) &&  
 						Object.keys(type).every(function(key) {
-							var result;
-							propertiesStack.chain.push(key);
-							propertiesStack.lastValue = self.value[key];
-							propertiesStack.lastType = type[key];
-							result = Duck(self.value[key]).is(type[key], propertiesStack);
-							if(result) {
-								propertiesStack.chain.pop();
-							}
-							return result;
+							return propertiesStack.wrap(key, type[key], self.value[key], function() {
+								return Duck(self.value[key]).is(type[key], propertiesStack);
+							});
 						});
 				} else {
 					return false;
@@ -142,7 +135,11 @@ function _printable(obj, isValue , functionToContent){
 		} else if(Duck(obj).is(String)) {
 			return isValue? '"' + obj + '"' : obj;
 		} else if(Duck(obj).is(Function)) {
-			return isValue? 'Function':  functionToContent? obj.toString() : obj.name || 'validator function';
+			return isValue?
+				'Function':  
+				functionToContent? 
+					obj.__duck_type_error__? obj.__duck_type_error__():obj.toString() : 
+					obj.name || 'validator function';
 		} else if(Duck(obj).is(Array)) {
 			return '[' + obj.map(function(o){
 				return _printable(o);
@@ -213,11 +210,12 @@ function or() {
 
 function and(){
 	var args = Array.prototype.slice.call(arguments);
-	var result = function(value){
+	var result = function(value, propertiesStack){
 		return args.every(function(type){
-			return Duck(value).is(type);
+			return Duck(value).is(type,propertiesStack);
 		});
 	};
+
 	result.__duck_type_mocker__ = function() {
 		return args.reduce(function(tmp, type) {
 			var obj = mock(type);
@@ -226,6 +224,12 @@ function and(){
 			});
 			return tmp;
 		}, {});
+	};
+
+	result.__duck_type_error__ = function() {
+		return 'and(' + args.map(function(arg) {
+			return _printable(arg);
+		}).join(', ') + ')';
 	};
 	return result;
 };
