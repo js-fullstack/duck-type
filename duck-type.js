@@ -125,30 +125,54 @@ function _booleanHandler(result, value, type) {
 	return result;
 }
 
-
-function _printable(obj, isValue , functionToContent){
+function _printableValue(obj) {
 	return mute(function() {
-		if(obj === undefined) {
+		if (obj === undefined) {
 			return 'undefined';
-		} else if(Duck(obj).is(or(Number,Date,Boolean,RegExp))) {
+		} else if(obj === null) {
+			return 'null';
+		} else if (Duck(obj).is(or(Number, Date, Boolean,RegExp))) {
 			return obj.toString();
 		} else if(Duck(obj).is(String)) {
-			return isValue? '"' + obj + '"' : obj;
-		} else if(Duck(obj).is(Function)) {
-			return isValue?
-				'Function':  
-				functionToContent? 
-					obj.__duck_type_error__? obj.__duck_type_error__():obj.toString() : 
-					obj.name || 'validator function';
+			return '"' + obj + '"';
+		} else if (Duck(obj).is(Function)) {
+			return 'Function';
 		} else if(Duck(obj).is(Array)) {
 			return '[' + obj.map(function(o){
-				return _printable(o);
-			}).join(',') + ']' 
+				return _printableValue(o);
+			}).join(',') + ']';
 		} else if(Duck(obj).is(Object)) {
 			return '{ ' + Object.keys(obj).reduce(function(tmp, key){
-				return tmp.concat([key,_printable(obj[key])].join(': '));
-			},[]).join(', ') + ' }';
-		}
+				return tmp.concat([key,_printableValue(obj[key])].join(': '));
+			},[]).join(', ') + ' }';		
+		}		
+	});
+}
+
+function _printTypeName(type) {
+	if(type.__duck_type_name__) {
+		return type.__duck_type_name__;
+	} else if(_isConstructor(type)) {
+		return type.name;
+	} else {
+		return 'inline validator';
+	}
+}
+
+function _printableType(type) {
+	return mute(function() {
+		if (Duck(type).is(Function)) {
+			return type.__duck_type_error__? 
+				type.__duck_type_error__(): type.name || type.toString();
+		} else if(Duck(type).is(Array)) {
+			return '[' + type.map(function(o){
+				return _printableType(o);
+			}).join(',') + ']';
+		} else if(Duck(type).is(Object)) {
+			return '{ ' + Object.keys(type).reduce(function(tmp, key){
+				return tmp.concat([key,_printableType(type[key])].join(': '));
+			},[]).join(', ') + ' }';	
+		}		
 	});
 }
 
@@ -156,19 +180,21 @@ function _throwHandler(result, value, type, propertiesStack) {
 	if(result === false) {
 		var messageArray = [
 			propertiesStack.need()? 
-				[propertiesStack.chain.join('.').replace(/\.\[/g,'['), _printable(propertiesStack.lastValue,true)].join(': ') :
-				_printable(value,true),
+				[propertiesStack.chain.join('.').replace(/\.\[/g,'['), _printableValue(propertiesStack.lastValue)].join(': ') :
+				_printableValue(value),
 			'is not compatible with',
-			_printable(propertiesStack.need()? propertiesStack.lastType : type)
+			_printableType(propertiesStack.need()? propertiesStack.lastType : type)
 		];
+
 		if(!_isConstructor(type)) {
 			messageArray = messageArray.concat([
-			',',
-			'which defined by',
-			type.__duck_type_name__? type.__duck_type_name__: 'inline validator',
-			':',
-			_printable(type,false,true)]);
+				',',
+				'which defined by',
+				_printTypeName(type),
+				':',
+				_printableType(type,false,true)]);
 		}
+		
 		throw new IncompatibleTypeError(messageArray.join(' '));
 	} else {
 		return true;
@@ -179,8 +205,9 @@ function _throwHandler(result, value, type, propertiesStack) {
 * function of duck
 *****************************************************************/
 
-function validator(fn, mocker) {
-	fn.__duck_type_mocker__ = mocker;
+function validator(fn, mockerHandler, errorHandler) {
+	fn.__duck_type_mocker__ = mockerHandler;
+	fn.__duck_type_error__ = errorHandler;
 	return fn;
 }
 
@@ -203,6 +230,12 @@ function or() {
 	};
 	result.__duck_type_mocker__ = function() {
 		return mock(args[_randomInt(args.length)]);
+	};
+
+	result.__duck_type_error__ = function() {
+		return 'or(' + args.map(function(arg) {
+			return _printableType(arg, false, true);
+		}).join(', ') + ')';
 	};
 	return result;
 };
@@ -228,7 +261,7 @@ function and(){
 
 	result.__duck_type_error__ = function() {
 		return 'and(' + args.map(function(arg) {
-			return _printable(arg);
+			return _printableType(arg);
 		}).join(', ') + ')';
 	};
 	return result;
@@ -236,18 +269,26 @@ function and(){
 
 var undefinedValidator = validator(function(value){
 	return value === undefined;
-},function() {
+}, function() {
 	return undefined;
+}, function() {
+	return 'UNDEFINED';
 });
 
 var nullValidator = validator(function(value) {
 	return value === null;
 },function() {
 	return null;
+},function() {
+	return 'NULL';
 });
 
 function optional(type){
-	return or(type,undefinedValidator);
+	var result =  or(type,undefinedValidator);
+	result.__duck_type_error__ = function() {
+		return 'optional(' + _printableType(type) + ')';
+	};
+	return result;
 };
 
 function parameterize(fn, mockFn) {

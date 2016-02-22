@@ -79,7 +79,7 @@ describe('Error test', function() {
         	try{
 		        duck(1).is(function() { return false;});
 		    } catch(e) {
-		        assert.equal(e.message, '1 is not compatible with validator function , which defined by inline validator : function () { return false;}');
+		        assert.equal(e.message, '1 is not compatible with function () { return false;} , which defined by inline validator : function () { return false;}');
 		    }
         });
 
@@ -90,7 +90,7 @@ describe('Error test', function() {
         		});
 		        duck(1).is(duck.MyType);
 		    } catch(e) {
-		        assert.equal(e.message, '1 is not compatible with validator function , which defined by MyType : function () {\r\n        \t\t\treturn false;\r\n        \t\t}');
+		        assert.equal(e.message, '1 is not compatible with function () {\r\n        \t\t\treturn false;\r\n        \t\t} , which defined by MyType : function () {\r\n        \t\t\treturn false;\r\n        \t\t}');
 		    }
         });
 	});
@@ -227,7 +227,7 @@ describe('Error test', function() {
             }
         });
 
-        xit('or', function() {
+        it('or', function() {
             duck.type('Foo',{
                 name: String
             });
@@ -240,8 +240,31 @@ describe('Error test', function() {
             try {
                 duck(t).is(duck.or(duck.Foo, duck.Bar));
             } catch(e) {
-                console.log('----->>------->', e.message);
-                assert(/^{ abc: "test"}: is not compatible with inline validator , which defined by inline validator/.test(e.message));
+                assert(/^{ abc: "test" } is not compatible with or\({ name: String }, { age: Number }\) , which defined by inline validator :/.test(e.message));
+            }
+        });
+
+        it('NULL', function() {
+            try {
+                duck(1).is(duck.NULL);
+            } catch(e) {
+                assert(/^1 is not compatible with NULL , which defined by NULL : NULL/.test(e.message));
+            }
+        });
+
+        it('UNDEFINED', function() {
+            try {
+                duck(1).is(duck.UNDEFINED);
+            } catch(e) {
+                assert(/^1 is not compatible with UNDEFINED , which defined by UNDEFINED : UNDEFINED/.test(e.message));
+            }
+        });
+
+        it('optional', function() {
+            try {
+                duck(1).is(duck.optional(String));
+            } catch(e) {
+                assert(/^1 is not compatible with optional\(String\) , which defined by inline validator :/.test(e.message));
             }
         });
     });
@@ -354,10 +377,8 @@ describe('Error test', function() {
         	try{
 		        duck(p4).is(duck.Person);
 		    } catch(e) {
-		    	console.log(e.message);
-		        assert(/^skills\[2\].level: "1" is not compatible with validator function , which defined by Person :/.test(e.message));
-		    }
-        	
+		        assert(/^skills\[2\].level: "1" is not compatible with function/.test(e.message));
+		    }    	
         });		
 	});
 });
