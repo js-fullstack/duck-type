@@ -90,7 +90,7 @@ describe('Error test', function() {
         		});
 		        duck(1).is(duck.MyType);
 		    } catch(e) {
-		        assert.equal(e.message, '1 is not compatible with function () {\r\n        \t\t\treturn false;\r\n        \t\t} , which defined by MyType : function () {\r\n        \t\t\treturn false;\r\n        \t\t}');
+		        assert.equal(e.message, '1 is not compatible with MyType , which defined by MyType : function () {\r\n        \t\t\treturn false;\r\n        \t\t}');
 		    }
         });
 	});
@@ -377,7 +377,7 @@ describe('Error test', function() {
         	try{
 		        duck(p4).is(duck.Person);
 		    } catch(e) {
-		        assert(/^skills\[2\].level: "1" is not compatible with function/.test(e.message));
+		        assert(/^skills\[2\].level: "1" is not compatible with Level , which defined by Person/.test(e.message));
 		    }    	
         });		
 	});

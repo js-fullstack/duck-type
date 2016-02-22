@@ -155,7 +155,7 @@ function _printTypeName(type) {
 	} else if(_isConstructor(type)) {
 		return type.name;
 	} else {
-		return 'inline validator';
+		return '';
 	}
 }
 
@@ -183,14 +183,14 @@ function _throwHandler(result, value, type, propertiesStack) {
 				[propertiesStack.chain.join('.').replace(/\.\[/g,'['), _printableValue(propertiesStack.lastValue)].join(': ') :
 				_printableValue(value),
 			'is not compatible with',
-			_printableType(propertiesStack.need()? propertiesStack.lastType : type)
+			_printTypeName(propertiesStack.need()? propertiesStack.lastType : type) || _printableType(propertiesStack.need()? propertiesStack.lastType : type)
 		];
 
 		if(!_isConstructor(type)) {
 			messageArray = messageArray.concat([
 				',',
 				'which defined by',
-				_printTypeName(type),
+				_printTypeName(type) || 'inline validator',
 				':',
 				_printableType(type,false,true)]);
 		}
