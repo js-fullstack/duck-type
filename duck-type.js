@@ -296,19 +296,31 @@ function optional(type){
 	return result;
 };
 
-function parameterize(fn, mockFn) {
-    return function() {
+function parameterize(fn, mockerHandler, errorHandler) {
+    var parameterizeFn =  function() {
         var args = Array.prototype.slice.call(arguments);
         var result =  function(value) {
             return fn.apply(undefined,[value].concat(args));
         };
-        if(typeof mockFn === 'function') {
+        if(typeof mockerHandler === 'function') {
             result.__duck_type_mocker__ = function() {
-                return mockFn.apply(undefined,args);
+                return mockerHandler.apply(undefined,args);
             }
+        }
+        if(typeof errorHandler === 'function') {
+        	result.__duck_type_error__ = function() {
+        		return errorHandler.apply(undefined,args);
+        	};
+        } else {
+        	result.__duck_type_error__ = function() {
+        		return parameterizeFn.__duck_type_name__ + '(' + args.map(function(arg) {
+        			return _printableValue(arg);
+        		}).join(',') + ')';
+        	};
         }
         return result;
     };
+    return parameterizeFn;
 };
 
 /***************************************************************

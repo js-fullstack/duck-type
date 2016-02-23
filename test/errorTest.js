@@ -277,6 +277,18 @@ describe('Error test', function() {
             }
 
         });
+
+        it('parameterize',function() {
+            duck.type('VARCHAR', duck.parameterize(function(value, length) {
+                return duck(value).is(String) && value.length <= length;
+            }));
+            try {
+                duck('1234').is(duck.VARCHAR(2));
+            } catch(e) {
+                assert.equal('"1234" is not compatible with VARCHAR(2) , which defined by inline validator : VARCHAR(2)',e.message);
+            }
+
+        });
     });
 
 	describe('array error message:',function(){
