@@ -267,6 +267,16 @@ describe('Error test', function() {
                 assert(/^1 is not compatible with optional\(String\) , which defined by inline validator :/.test(e.message));
             }
         });
+
+        it('asPrototype',function() {
+            var Foo = {name:'123'};
+            try {
+                duck({}).is(duck.asPrototype(Foo));
+            } catch(e) {
+                assert.equal('{  } is not compatible with asPrototype({ name: "123" }) , which defined by inline validator : asPrototype({ name: "123" })',e.message);
+            }
+
+        });
     });
 
 	describe('array error message:',function(){

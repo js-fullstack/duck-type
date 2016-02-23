@@ -218,6 +218,11 @@ function asPrototype (obj) {
 	result.__duck_type_mocker__ = function() {
 		return Object.create(obj);
 	};
+
+	result.__duck_type_error__ = function() {
+		return 'asPrototype(' + _printableValue(obj) + ')';
+	};
+
 	return result;
 };
 
