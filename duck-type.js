@@ -100,7 +100,7 @@ function _extend(dest, src) {
 }
 
 /***************************************************************
-* mute and turn off
+* mute and error handler
 ****************************************************************/
 var _returnHandle = _throwHandler;
 
@@ -149,7 +149,7 @@ function _printableValue(obj) {
 	});
 }
 
-function _printTypeName(type) {
+function _printableTypeName(type) {
 	if(type.__duck_type_name__) {
 		return type.__duck_type_name__;
 	} else if(_isConstructor(type)) {
@@ -183,14 +183,16 @@ function _throwHandler(result, value, type, propertiesStack) {
 				[propertiesStack.chain.join('.').replace(/\.\[/g,'['), _printableValue(propertiesStack.lastValue)].join(': ') :
 				_printableValue(value),
 			'is not compatible with',
-			_printTypeName(propertiesStack.need()? propertiesStack.lastType : type) || _printableType(propertiesStack.need()? propertiesStack.lastType : type)
+			(function(type) {
+				return _printableTypeName(type) || _printableType(type);
+			})(propertiesStack.need()? propertiesStack.lastType : type)
 		];
 
 		if(!_isConstructor(type)) {
 			messageArray = messageArray.concat([
 				',',
 				'which defined by',
-				_printTypeName(type) || 'inline validator',
+				_printableTypeName(type) || 'inline validator',
 				':',
 				_printableType(type,false,true)]);
 		}
