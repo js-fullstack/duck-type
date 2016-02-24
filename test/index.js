@@ -1,5 +1,5 @@
 var assert = require('assert');
-var duck = require('../duck-type').instance();
+var duck = require('../duck-type.js').instance();
 
 
 describe('duck-type', function() {
