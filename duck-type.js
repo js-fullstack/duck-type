@@ -32,7 +32,7 @@ Duck.prototype = {
 			}
 		};
 		if(['function','object'].indexOf(typeof type)  < 0) {
-			throw Error('only function or object can be type define, now type is (' + typeof type + ')');
+			throw InvalidTypeError('only function or object can be type define, now type is (' + typeof type + ')');
 		}
 		var self = this,
 			result = mute(function() {
@@ -371,7 +371,7 @@ function mock(type) {
 			if(typeof type.__duck_type_mocker__ === 'function') {
 				return type.__duck_type_mocker__();
 			} else {
-				throw new Error('can not mock type ' + type);
+				throw new InvalidMockHandlerError('can not mock type ' + type);
 			}
 		} else if (Duck(type).is(Array)) {
 			if(type.length === 0) {
@@ -409,6 +409,23 @@ function IncompatibleTypeError(message) {
 
 IncompatibleTypeError.prototype = Error.prototype;
 
+
+function InvalidTypeError(message) {
+	var result = Error.call(this, message);
+	result.name = 'InvalidTypeError';
+	return result;
+};
+
+InvalidTypeError.prototype = Error.prototype;
+
+
+function InvalidMockHandlerError(message) {
+	var result = Error.call(this, message);
+	result.name = 'InvalidMockHandlerError';
+	return result;
+};
+
+InvalidMockHandlerError.prototype = Error.prototype;
 
 
 /****************************************************************
