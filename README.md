@@ -4,14 +4,35 @@ Duck type is a JavaScript library, which provide a **natural way** to define and
 
 ## Getting Started 
 
-Currently, duck-type can only support version on NodeJS:
+Currently, duck-type can support both NodeJS and browser:
 ```Bash
+   ## in node
    npm install duck-type
 ```
+Or
+```Bash
+   ## in browser
+   bower intall duck-type
+```
+
 and, use it in your code, like:
 ```javascript
+  // in node 
   var duck = require('../duck-type').instance();
 ```
+Or
+```javascript
+  // in browser, global variable  duckType
+  var duck = duckType.instance();
+```
+Or
+```javascript
+  // in browser, requirejs/amd  duckType
+  define(['./scripts/duck-type.js'],function(duckType) {
+     var duck = duckType.instance();
+  });
+```
+
 ### Validation: 
 
 Let us get start with validation:
