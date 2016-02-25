@@ -1,11 +1,11 @@
 {
   "name": "duck-type",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Duck Type System",
   "main": "duck-type.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --reporter spec",
-    "debug": "--debug-brk, node-inspector"
+    "debug": "--debug-brk, node-inspector  "
   },
   "repository": {
     "type": "git",
@@ -19,15 +19,28 @@
     "verify"
   ],
   "author": "Shen Yu <shenyu1997@gmail.com> (https://github.com/shenyu1997)",
-  "license": [{
-    "type":"Apache License",
-    "url":"http://www.apache.org/licenses/LICENSE-2.0"
-    }],
+  "license": [
+    {
+      "type": "Apache License",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/js-fullstack/duck-type/issues"
   },
   "homepage": "http://js-fullstack.github.io/duck-type",
   "devDependencies": {
-    "mocha": "^2.3.4"
+    "chai": "^3.5.0",
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.21",
+    "karma-chrome-launcher": "^0.2.2",
+    "karma-firefox-launcher": "^0.1.7",
+    "karma-ie-launcher": "^0.2.0",
+    "karma-jasmine": "^0.3.7",
+    "karma-mocha": "^0.2.2",
+    "karma-opera-launcher": "^0.3.0",
+    "karma-requirejs": "^0.2.5",
+    "mocha": "^2.3.4",
+    "requirejs": "^2.1.22"
   }
 }

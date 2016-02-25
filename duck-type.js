@@ -443,7 +443,9 @@
 			}
 
 			mute(function() {
-				if(Duck(define).is(or(Function,Array))) {
+				if(_isConstructor(define)) {
+					_duck[type] = define;
+				} else if (Duck(define).is(or(Function,Array))) {
 					define.__duck_type_name__ = type;
 					_duck[type] = define;
 				} else {
@@ -502,7 +504,9 @@
 	// AMD / RequireJS
     if (typeof define !== 'undefined' && define.amd) {
         define([], function () {
-            return instance;
+            return {
+            	instance: instance
+            };
         });
     }
 
@@ -510,6 +514,8 @@
 	* Browser exports
 	*/
 	if (typeof(window)  !== 'undefined') {
-		window['duck'] = instance;
+		window['duckType'] = {
+			instance: instance
+		};
 	}
 })();

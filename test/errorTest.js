@@ -1,8 +1,5 @@
-var assert = require('assert');
-var duck = require('../duck-type').instance();
-
-
 describe('Error test', function() {
+    var duck = duckType.instance();
     describe('Error Type', function () {
         it('should throw  Error', function () {
             try{
@@ -47,6 +44,7 @@ describe('Error test', function() {
             try{
             	duck(1).is(String);
             } catch(e) {
+                console.log(e.message);
             	assert.equal(e.message, '1 is not compatible with String');
             }
         });

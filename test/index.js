@@ -1,8 +1,5 @@
-var assert = require('assert');
-var duck = require('../duck-type.js').instance();
-
-
 describe('duck-type', function() {
+    var duck = duckType.instance();
     describe('base function', function () {
         it('should a function as node module', function () {
             assert.equal(typeof duck,'function');
@@ -549,17 +546,18 @@ describe('duck-type', function() {
 });
 
 describe('instance',function() {
+    var duck = duckType.instance();
     it('happy path', function() {
-        var duck1 = require('../duck-type').instance();
+        var duck1 = duckType.instance();
         duck1.type('HELLO',String);
-        var duck2 = require('../duck-type').instance();
+        var duck2 = duckType.instance();
         assert(duck1('hello').is(duck1.HELLO));
         assert(duck2('hello').is(duck1.HELLO));
     });
 
     it('import happy path', function() {
         function exportAbc() {
-            var abc = require('../duck-type').instance();
+            var abc = duckType.instance();
             abc.type('HELLO',function(v) {
                 return duck(v).is(String);
             });
@@ -567,14 +565,14 @@ describe('instance',function() {
         }
 
         function exportXyz() {
-            var xyz = require('../duck-type').instance();
+            var xyz = duckType.instance();
             var abc = exportAbc();
             xyz.type('Person',{
                 name: abc.HELLO
             });
             return xyz;
         }
-        var duck = require('../duck-type').instance();
+        var duck = duckType.instance();
         var xyz = exportXyz();
         duck.type('Test',function(v) {
             return duck(v).is(xyz.Person);
@@ -587,6 +585,7 @@ describe('instance',function() {
 });
 
 describe('partially check',function() {
+    var duck = duckType.instance();
     duck.type('Person',{
         name: {first:String, last:String},
         age: Number
@@ -602,6 +601,7 @@ describe('partially check',function() {
 });
 
 describe('parameterize',function() {
+    var duck = duckType.instance();
 
     duck.type('Range', duck.parameterize(function(value, a, b){
         return duck(value).is(Number) && value >= a && value <=b; 
@@ -617,6 +617,7 @@ describe('parameterize',function() {
 });
 
 describe('mute', function() {
+    var duck = duckType.instance();
     it('duck(xxx).is(XXX) will not throw Error when it as a validator executed in context duck.type', function() {
         var checkpoint = false;
         duck.type('Integer', function(value) {
@@ -660,4 +661,6 @@ describe('mute', function() {
         assert(duck(2).is(String));
     });
 });
+
+
 

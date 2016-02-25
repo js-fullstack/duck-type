@@ -1,8 +1,5 @@
-var assert = require('assert');
-var duck = require('../duck-type.js').instance();
-
-
 describe('mock', function() {
+	var duck = duckType.instance();
 	it('happy path for build in', function() {
 		assert(duck(duck.mock(String)).is(String));
 		assert(duck(duck.mock(Number)).is(Number));
