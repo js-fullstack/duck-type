@@ -41,6 +41,7 @@
     "karma-opera-launcher": "^0.3.0",
     "karma-requirejs": "^0.2.5",
     "mocha": "^2.3.4",
-    "requirejs": "^2.1.22"
+    "requirejs": "^2.1.22",
+    "uglify-js": "^2.6.2"
   }
 }
