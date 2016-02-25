@@ -1,6 +1,6 @@
 {
   "name": "duck-type",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Duck Type System",
   "main": "duck-type.js",
   "scripts": {
