@@ -27,13 +27,32 @@
 <h2>
 <a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Started</h2>
 
-<p>Currently, duck-type can only support version on NodeJS:</p>
+<p>Currently, duck-type can support both NodeJS and browser:</p>
 
-<div class="highlight highlight-source-shell"><pre>   npm install duck-type</pre></div>
+<div class="highlight highlight-source-shell"><pre>   <span class="pl-c">## in node</span>
+   npm install duck-type</pre></div>
+
+<p>Or</p>
+
+<div class="highlight highlight-source-shell"><pre>   <span class="pl-c">## in browser</span>
+   bower intall duck-type</pre></div>
 
 <p>and, use it in your code, like:</p>
 
-<div class="highlight highlight-source-js"><pre>  <span class="pl-k">var</span> duck <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>../duck-type<span class="pl-pds">'</span></span>).<span class="pl-en">instance</span>();</pre></div>
+<div class="highlight highlight-source-js"><pre>  <span class="pl-c">// in node </span>
+  <span class="pl-k">var</span> duck <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>../duck-type<span class="pl-pds">'</span></span>).<span class="pl-en">instance</span>();</pre></div>
+
+<p>Or</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-c">// in browser, global variable  duckType</span>
+  <span class="pl-k">var</span> duck <span class="pl-k">=</span> <span class="pl-smi">duckType</span>.<span class="pl-en">instance</span>();</pre></div>
+
+<p>Or</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-c">// in browser, requirejs/amd  duckType</span>
+  <span class="pl-en">define</span>([<span class="pl-s"><span class="pl-pds">'</span>./scripts/duck-type.js<span class="pl-pds">'</span></span>],<span class="pl-k">function</span>(<span class="pl-smi">duckType</span>) {
+     <span class="pl-k">var</span> duck <span class="pl-k">=</span> <span class="pl-smi">duckType</span>.<span class="pl-en">instance</span>();
+  });</pre></div>
 
 <h3>
 <a id="validation" class="anchor" href="#validation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Validation:</h3>
