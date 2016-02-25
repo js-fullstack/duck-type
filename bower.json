@@ -1,0 +1,29 @@
+{
+  "name": "duck-type",
+  "description": "Type/Validation",
+  "main": "duck-type.js",
+  "authors": [
+    "Shen Yu <shenyu1997@gmail.com> (https://github.com/shenyu1997)"
+  ],
+  "license": "Apache License",
+  "keywords": [
+    "duck",
+    "type",
+    "interface",
+    "define",
+    "verify"
+  ],
+  "homepage": "https://github.com/js-fullstack/duck-type",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
