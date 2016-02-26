@@ -1,5 +1,5 @@
 describe('Error test', function() {
-    var duck = duckType.instance();
+    var duck = duckType.create();
     describe('Error Type', function () {
         it('should throw  Error', function () {
             try{

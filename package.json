@@ -4,8 +4,8 @@
   "description": "Duck Type System",
   "main": "duck-type.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec",
-    "debug": "--debug-brk, node-inspector  "
+    "test": "./node_modules/.bin/karma start",
+    "debug": "./node_modules/.bin/mocha --reporter spec --debug-brk, node-inspector  "
   },
   "repository": {
     "type": "git",
