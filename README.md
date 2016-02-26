@@ -41,17 +41,19 @@ Let us get start with validation:
 We wish that 'x' should be a String, we can verify the type of 'x' like this:
 ```JavaScript
   function foo(x) {
-    schema.assert(param1).is(x);
+    schema.assert(x).is(x);
     ...
   }
 ```
+
 We also can verify many parameters at once, like:
+
 ```JavaScript
     schema.assert(x, y).are(String, Number);	
 ```
 
 #### Example 2
-```
+
 We can verify complex object by schema like:
 ```
   schema.assert(x).is({
