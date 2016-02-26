@@ -1,6 +1,6 @@
 {
   "name": "duck-type",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Schema Validation System",
   "main": "duck-type.js",
   "scripts": {
