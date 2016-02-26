@@ -41,7 +41,7 @@ Let us get start with validation:
 We wish that 'x' should be a String, we can verify the type of 'x' like this:
 ```JavaScript
   function foo(x) {
-    schema.assert(x).is(x);
+    schema.assert(x).is(String);
     ...
   }
 ```
