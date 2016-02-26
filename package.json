@@ -1,7 +1,7 @@
 {
   "name": "duck-type",
   "version": "0.0.14",
-  "description": "Duck Type System",
+  "description": "Schema Validation System",
   "main": "duck-type.js",
   "scripts": {
     "test": "./node_modules/.bin/karma start",
@@ -12,6 +12,9 @@
     "url": "https://github.com/js-fullstack/duck-type"
   },
   "keywords": [
+    "schema",
+    "validation",
+    "validor",
     "duck",
     "type",
     "interface",
