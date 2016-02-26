@@ -1,6 +1,6 @@
 # duck-type
 
-Duck type is a JavaScript library, which provide a **natural way** to define and validate your data structure in JavaScript. The purpose of this library is try to help you to build up 'Complicated But Robust JavaScript Program', especially when you have to teamwork with other peoples, or developing your code based on unstable API.
+Duck type is a schema and validator JavaScript library, which provide a **natural way** to define schema and validate your data structure in JavaScript. The purpose of this library is try to help you to build up 'Complicated But Robust JavaScript Program', especially when you have to teamwork with other peoples, or developing your code based on unstable API.
 
 ## Getting Started 
 
@@ -18,18 +18,18 @@ Or
 and, use it in your code, like:
 ```javascript
   // in node 
-  var duck = require('../duck-type').instance();
+  var schema = require('../duck-type').create();
 ```
 Or
 ```javascript
   // in browser, global variable  duckType
-  var duck = duckType.instance();
+  var schema = duckType.create();
 ```
 Or
 ```javascript
   // in browser, requirejs/amd  duckType
   define(['./scripts/duck-type.js'],function(duckType) {
-     var duck = duckType.instance();
+     var schema = duckType.create();
   });
 ```
 
@@ -38,56 +38,33 @@ Or
 Let us get start with validation:
 
 #### Example 1
-Suppose we have to implement a function:
+We wish that 'x' should be a String, we can verify the type of 'x' like this:
 ```JavaScript
-  function foo(param1) {
-    ...
-  }
-``` 
-and we want to make sure that 'param1' should be a String, we can verify the type of 'param1' like this:
-```JavaScript
-  function foo(param1) {
-    duck(param1).is(String);
+  function foo(x) {
+    schema.assert(param1).is(x);
     ...
   }
 ```
 We also can verify many parameters at once, like:
 ```JavaScript
-    duck(param1, param2).are(String, Number);	
+    schema.assert(x, y).are(String, Number);	
 ```
 
 #### Example 2
-
-How about complex object like:
-```JavaScript
-  {
-    name:'hello', 
-    age: 12345
-  };
 ```
-We can verify it like:
+We can verify complex object by schema like:
 ```
-  duck(param1).is({
+  schema.assert(x).is({
     name:String, 
     age:Number
   });
 ```
-Note, the following object can also be passed, which means, relative to definition, the properties can be 'more', but can not be 'less':
-```JavaScript
-  duck({             //also can be passed, means the object is compatible with  the type
-    name:'hello', 
-    age: 12345, 
-    something:'foo'}
-  ).is({
-    name:String, 
-    age:Number
-  }); 
-```
+
 #### Example 3
 
-We can verify the more complicated object like this:
+Even support **"nest"** schema like this:
 ```JavaScript
-  duck(param1).is({
+  schema.assert(x).is({
     name : {
       first:String, 
       last:String
@@ -100,22 +77,27 @@ Here :
 
   'sayHello': Function means target object which to verified must have a method named 'sayHello'.
   
-  'name', is a nest object.
+  'name', is a nest schema.
 
 #### Example 4
 
 For array, duck-type can support different pattern:
 ```JavaScript
-  duck(x).is([]); //means x must be a array, it eaual to is(Array)
+  schema.assert(x).is([]); //x must be a array, element can by any type
 	
-  duck(X).is([Number]); //means x must be a array, and each element of the array must be a Number
+  schema.assert(X).is([Number]); //x must be a array, element must be a Number
 	
-  duck(X).is([Number,String,Date]); 
-  //means x must be a array, and the first element  must be a Number, the second element must be a String....
+  schema.assert(X).is([Number, String, Date]); 
+  /*
+    means x must be a array, 
+    and the first element  must be a Number, 
+    the second element must be a String....
+  */
 ```
+
 Of cause, we can combine definition of array and object, like;
 ```JavaScript
-  duck(param1).is({
+  schema.assert(x).is({
     title: String,
     description: String,
       resourceDemands: [{
@@ -127,15 +109,15 @@ Of cause, we can combine definition of array and object, like;
   })
 ```
 
-### Define our data structure, so-called duck type:
+### Define schema:
 
-Don't stop with verify. Declare the data structure and re-use them might be a better choice.
+Save schema as **"type"** to re-use them.
 
 #### Example 5
 
-How to define type? Just do it like:
+Define a type:
 ```JavaScript
-  duck.type('ResourceDemand',{	//now, we defined a type ResourceDemand
+  schema.type('ResourceDemand',{	//now, we defined a type ResourceDemand
     resourceTypeId: Number,
     year: Number,
     month: Number,
@@ -143,29 +125,29 @@ How to define type? Just do it like:
   });
 ```
 
-And how to use it? It is easy.
+Re-use type.
 ```JavaScript
-	duck(param1).is(duck.ResourceDemand);
+	schema.assert(x).is(schema.ResourceDemand);
 ```
 #### Example 6
 
 We can define some basic type, even like java.lang.Integer
 ```JavaScript
-	duck.type('Integer',function(value){
-		return duck(value).is(Number) && value % 1 === 0 && value >= -2147483648 && value <= 2147483647;
+	schema.type('Integer',function(value){
+		return schema.assert(value).is(Number) && value % 1 === 0 && value >= -2147483648 && value <= 2147483647;
 	});
 ```
 Here, by define the validate function we can decided what is 'Integer' in our program.
 
 #### Example 7
 
-We can defined new type by leverage data structure which have already defined, I mean:
+Defined new type by leverage existing type, I mean:
 ```JavaScript
-  duck.type('Proposal',{
-    id: duck.Integer
+  schema.type('Proposal',{
+    id: schema.Integer
     title: String,
     description: String,
-    resourceDemands: [duck.ResourceDemand]
+    resourceDemands: [schema.ResourceDemand]
 });	
 ```
 
@@ -173,12 +155,12 @@ We can defined new type by leverage data structure which have already defined, I
 
 #### Example 8
 
-##### Mock data. 
+##### Generate data. 
 
-Type define first is encouraged, it is practice of 'Convention First'. And if your have defined a type already. 'mock' is another benefit provided by duck-type.
+'Generate' is another interesting feature provided by duck-type.
 
 ```JavaScript
-  duck.mock(duck.Proposal);  //it will return an object, which must compatible with type Proposal.
+  schema.generate(schema.Proposal);  //it will return an object, which must compatible with type Proposal.
 ```
 I mean, 
 ```javascript	
@@ -194,21 +176,21 @@ I mean,
     }]
   }
 ```
-The object like above might be return, of cause, most of value will be changed randomly.
+The object like above might be return, of cause, most of value will be changed **randomly**.
 
 #### Example 9
 
 ##### Optional property
 
-The type can define optional property for an object by using function duck.optional.
+The type can define optional property for an object by using function schema.optional.
 
 ```JavaScript
-  duck.type('Profile', {
+  schema.type('Profile', {
     name: String,
-    skill: duck.optional([String])
+    skill: schema.optional(String)
   });
 ```
-Here, 'name' is mandatory property and the value of it must be a String, 'skill' is a **optional property**, it can be undefined, BUT, if it has value, the value must be a array and which elements must be a String.
+Here, skill' is a **optional property**, it can be undefined, BUT, if it has value, the value must be a String.
 
 #### Example 10
 
@@ -217,13 +199,9 @@ Here, 'name' is mandatory property and the value of it must be a String, 'skill'
 Dynamic data type of arguments is common in JavaScript. which means we need operator 'Or',
 
 ```JavaScript
-  Duck.type('Config',{   //here is definition of type 'Config'
-    id: Number,
-    layout: [String]
-  });
-  Duck(x).is(duck.or(String, duck.Config));
+  schema.assert(x).is(schema.or(String, Number));
 ```
-Here, the value of parameter 'x' can be a String, or can be a complex config object.
+Here, the value of parameter 'x' can be a String, or can be a Number.
 
 #### Example 11
 
@@ -232,19 +210,20 @@ Here, the value of parameter 'x' can be a String, or can be a complex config obj
 In Java world, we often need make sure a Object must implement Interface A, Interface B... Similarly, operator 'And' can used for this purpose in JavaScript.
 
 ```JavaScript
-  Duck.type('Config',{ //here is definition of type 'Config'
-    orderBy:[String]
-    layout: [String]
+  schema.type('Config',{ //here is definition of type 'Config'
+    orderBy:String
+    layout: String
   });
 
- Duck.type('Query',{ //here is definition of type 'Query'
+ schema.type('Query',{ //here is definition of type 'Query'
     table: String,
     id: Number
   });
 
- Duck(x).is(duck.and(duck.Config, duck.Query)); 
+ schema.assert(x).is(schema.and(schema.Config, schema.Query)); 
 ```
-Here, we want to make sure the value of 'x' must implement type 'Config', and type 'Query', that means in duck typing world, x can used as a 'Config' object, and also can be used as 'Query' object at same time. 
+Here, we want to make sure the value of 'x' must implement type 'Config', and type 'Query' at same time.
+
 ###End
 
 The library duck-type is still developing continually, more interesting feature will be bring to you. We also except any of your comments. 
