@@ -1,6 +1,7 @@
 ### Content Table
 * [Preface](#preface)
-* [is, are](#assert-is-are)
+* [assert, is, are](#assert-is-are)
+  * [assert](#assert)
   * [is](#is)
   * [are](#are)
 * [Build-In type](build-In-type)
@@ -602,7 +603,7 @@ We can defined our type like example **"Integer"**
 
 `bind` will export all of types which you defined to target object, it can be used as **export type**, for example:
 
-`bind` is **unstable API**, it is are likely to changed in future.
+`bind` is **unstable API**, it is likely to changed in future.
 
 In module A,
 ```JavaScript
