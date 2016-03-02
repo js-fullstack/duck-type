@@ -32,11 +32,6 @@
 <div class="highlight highlight-source-shell"><pre>   <span class="pl-c">## in node</span>
    npm install duck-type</pre></div>
 
-<p>Or</p>
-
-<div class="highlight highlight-source-shell"><pre>   <span class="pl-c">## in browser</span>
-   bower intall duck-type</pre></div>
-
 <p>and, use it in your code, like:</p>
 
 <div class="highlight highlight-source-js"><pre>  <span class="pl-c">// in node </span>
@@ -44,15 +39,15 @@
 
 <p>Or</p>
 
+<div class="highlight highlight-source-shell"><pre>   <span class="pl-c">## in browser</span>
+   bower intall duck-type</pre></div>
+
+<p>and, use it in your code, like:</p>
+
 <div class="highlight highlight-source-js"><pre>  <span class="pl-c">// in browser, global variable  duckType</span>
   <span class="pl-k">var</span> schema <span class="pl-k">=</span> <span class="pl-smi">duckType</span>.<span class="pl-en">create</span>();</pre></div>
 
-<p>Or</p>
-
-<div class="highlight highlight-source-js"><pre>  <span class="pl-c">// in browser, requirejs/amd  duckType</span>
-  <span class="pl-en">define</span>([<span class="pl-s"><span class="pl-pds">'</span>./scripts/duck-type.js<span class="pl-pds">'</span></span>],<span class="pl-k">function</span>(<span class="pl-smi">duckType</span>) {
-     <span class="pl-k">var</span> schema <span class="pl-k">=</span> <span class="pl-smi">duckType</span>.<span class="pl-en">create</span>();
-  });</pre></div>
+<p>It also support <strong>"requirejs"</strong>.</p>
 
 <h3>
 <a id="validation" class="anchor" href="#validation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Validation:</h3>
@@ -62,12 +57,8 @@
 <h4>
 <a id="example-1" class="anchor" href="#example-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example 1</h4>
 
-<p>We wish that 'x' should be a String, we can verify the type of 'x' like this:</p>
-
-<div class="highlight highlight-source-js"><pre>  <span class="pl-k">function</span> <span class="pl-en">foo</span>(<span class="pl-smi">x</span>) {
-    <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(x).<span class="pl-en">is</span>(x);
-    <span class="pl-k">...</span>
-  }</pre></div>
+<div class="highlight highlight-source-js"><pre>    <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(<span class="pl-c1">1</span>).<span class="pl-en">is</span>(<span class="pl-c1">String</span>);   <span class="pl-c">//throw Error</span>
+    <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(<span class="pl-s"><span class="pl-pds">'</span>1<span class="pl-pds">'</span></span>).<span class="pl-en">is</span>(<span class="pl-c1">String</span>); <span class="pl-c">//passed, return true</span></pre></div>
 
 <p>We also can verify many parameters at once, like:</p>
 
@@ -100,7 +91,7 @@
 
 <p>Here :</p>
 
-<p>'sayHello': Function means target object which to verified must have a method named 'sayHello'.</p>
+<p>'sayHello': <strong>Function</strong> means target object which to verified must have a method named 'sayHello'.</p>
 
 <p>'name', is a nest schema.</p>
 
@@ -109,16 +100,16 @@
 
 <p>For array, duck-type can support different pattern:</p>
 
-<div class="highlight highlight-source-js"><pre>  <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(x).<span class="pl-en">is</span>([]); <span class="pl-c">//x must be a array, element can by any type</span>
+<div class="highlight highlight-source-js"><pre>  <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(x).<span class="pl-en">is</span>([]);        <span class="pl-c">// x must be a array, element can by any type</span>
 
-  <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(X).<span class="pl-en">is</span>([<span class="pl-c1">Number</span>]); <span class="pl-c">//x must be a array, element must be a Number</span>
+  <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(X).<span class="pl-en">is</span>([<span class="pl-c1">Number</span>]);  <span class="pl-c">//x must be a array, element must be a Number</span>
 
-  <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(X).<span class="pl-en">is</span>([<span class="pl-c1">Number</span>, <span class="pl-c1">String</span>, <span class="pl-c1">Date</span>]); 
-  <span class="pl-c">/*</span>
+  <span class="pl-smi">schema</span>.<span class="pl-en">assert</span>(X).<span class="pl-en">is</span>([<span class="pl-c1">Number</span>, <span class="pl-c1">String</span>, <span class="pl-c1">Date</span>]);
+   <span class="pl-c">/* </span>
 <span class="pl-c">    means x must be a array, </span>
 <span class="pl-c">    and the first element  must be a Number, </span>
 <span class="pl-c">    the second element must be a String....</span>
-<span class="pl-c">  */</span></pre></div>
+<span class="pl-c">    */</span></pre></div>
 
 <p>Of cause, we can combine definition of array and object, like;</p>
 
