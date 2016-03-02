@@ -5,45 +5,44 @@ Duck type is a schema and validator JavaScript library, which provide a **natura
 ## Getting Started 
 
 Currently, duck-type can support both NodeJS and browser:
+
 ```Bash
    ## in node
    npm install duck-type
 ```
+
+and, use it in your code, like:
+
+```javascript
+  // in node 
+  var schema = require('../duck-type').create();
+```
+
 Or
+
 ```Bash
    ## in browser
    bower intall duck-type
 ```
 
 and, use it in your code, like:
-```javascript
-  // in node 
-  var schema = require('../duck-type').create();
-```
-Or
+
 ```javascript
   // in browser, global variable  duckType
   var schema = duckType.create();
 ```
-Or
-```javascript
-  // in browser, requirejs/amd  duckType
-  define(['./scripts/duck-type.js'],function(duckType) {
-     var schema = duckType.create();
-  });
-```
+
+It also support **"requirejs"**.
 
 ### Validation: 
 
 Let us get start with validation:
 
 #### Example 1
-We wish that 'x' should be a String, we can verify the type of 'x' like this:
+
 ```JavaScript
-  function foo(x) {
-    schema.assert(x).is(String);
-    ...
-  }
+    schema.assert(1).is(String);   //throw Error
+    schema.assert('1').is(String); //passed, return true
 ```
 
 We also can verify many parameters at once, like:
@@ -55,6 +54,7 @@ We also can verify many parameters at once, like:
 #### Example 2
 
 We can verify complex object by schema like:
+
 ```
   schema.assert(x).is({
     name:String, 
@@ -65,6 +65,7 @@ We can verify complex object by schema like:
 #### Example 3
 
 Even support **"nest"** schema like this:
+
 ```JavaScript
   schema.assert(x).is({
     name : {
@@ -74,30 +75,36 @@ Even support **"nest"** schema like this:
     age: Number,
     sayHello: Function
     });
-```	
+```
+
+
 Here :
 
-  'sayHello': Function means target object which to verified must have a method named 'sayHello'.
+  'sayHello': **Function** means target object which to verified must have a method named 'sayHello'.
   
   'name', is a nest schema.
+  
 
 #### Example 4
 
 For array, duck-type can support different pattern:
+
+
 ```JavaScript
-  schema.assert(x).is([]); //x must be a array, element can by any type
+  schema.assert(x).is([]);        // x must be a array, element can by any type
 	
-  schema.assert(X).is([Number]); //x must be a array, element must be a Number
+  schema.assert(X).is([Number]);  //x must be a array, element must be a Number
 	
-  schema.assert(X).is([Number, String, Date]); 
-  /*
+  schema.assert(X).is([Number, String, Date]);
+   /* 
     means x must be a array, 
     and the first element  must be a Number, 
     the second element must be a String....
-  */
+    */
 ```
 
 Of cause, we can combine definition of array and object, like;
+
 ```JavaScript
   schema.assert(x).is({
     title: String,
@@ -118,6 +125,7 @@ Save schema as **"type"** to re-use them.
 #### Example 5
 
 Define a type:
+
 ```JavaScript
   schema.type('ResourceDemand',{	//now, we defined a type ResourceDemand
     resourceTypeId: Number,
@@ -128,22 +136,27 @@ Define a type:
 ```
 
 Re-use type.
+
 ```JavaScript
 	schema.assert(x).is(schema.ResourceDemand);
 ```
+
 #### Example 6
 
 We can define some basic type, even like java.lang.Integer
+
 ```JavaScript
 	schema.type('Integer',function(value){
 		return schema.assert(value).is(Number) && value % 1 === 0 && value >= -2147483648 && value <= 2147483647;
 	});
 ```
+
 Here, by define the validate function we can decided what is 'Integer' in our program.
 
 #### Example 7
 
 Defined new type by leverage existing type, I mean:
+
 ```JavaScript
   schema.type('Proposal',{
     id: schema.Integer
@@ -164,7 +177,9 @@ Defined new type by leverage existing type, I mean:
 ```JavaScript
   schema.generate(schema.Proposal);  //it will return an object, which must compatible with type Proposal.
 ```
+
 I mean, 
+
 ```javascript	
   {
     id: 112,
@@ -178,6 +193,7 @@ I mean,
     }]
   }
 ```
+
 The object like above might be return, of cause, most of value will be changed **randomly**.
 
 #### Example 9
@@ -192,6 +208,7 @@ The type can define optional property for an object by using function schema.opt
     skill: schema.optional(String)
   });
 ```
+
 Here, skill' is a **optional property**, it can be undefined, BUT, if it has value, the value must be a String.
 
 #### Example 10
@@ -203,6 +220,7 @@ Dynamic data type of arguments is common in JavaScript. which means we need oper
 ```JavaScript
   schema.assert(x).is(schema.or(String, Number));
 ```
+
 Here, the value of parameter 'x' can be a String, or can be a Number.
 
 #### Example 11
@@ -224,6 +242,7 @@ In Java world, we often need make sure a Object must implement Interface A, Inte
 
  schema.assert(x).is(schema.and(schema.Config, schema.Query)); 
 ```
+
 Here, we want to make sure the value of 'x' must implement type 'Config', and type 'Query' at same time.
 
 ###End
