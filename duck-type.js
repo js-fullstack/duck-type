@@ -435,10 +435,12 @@
      *****************************************************************/
     function create() {
         var _domain = function () {
-            return new Duck(Array.prototype.slice.call(arguments));
+            
         };
 
-        _domain.assert = _domain;
+        _domain.assert = function () {
+            return new Duck(Array.prototype.slice.call(arguments));
+        };;
 
         _domain.type = function (type, define) {
             if(!_isValiderTypeName(type)) {

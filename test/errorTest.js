@@ -1,5 +1,6 @@
 describe('Error test', function() {
-    var duck = duckType.create();
+    var schema = duckType.create();
+    var duck = schema.assert;
     describe('Error Type', function () {
         it('should throw  Error', function () {
             try{
@@ -13,7 +14,7 @@ describe('Error test', function() {
             try{
             	duck(1).is(String)
             } catch(e) {
-            	assert(duck(e).is(duck.IncompatibleTypeError));
+            	assert(duck(e).is(schema.IncompatibleTypeError));
             }
         });
 
@@ -83,10 +84,10 @@ describe('Error test', function() {
 
         it('name of type will shown if test type function', function() {
         	try{
-        		duck.type('MyType', function() {
+        		schema.type('MyType', function() {
         			return false;
         		});
-		        duck(1).is(duck.MyType);
+		        duck(1).is(schema.MyType);
 		    } catch(e) {
 		        assert.equal(e.message, '1 is not compatible with MyType , which defined by MyType : function () {\r\n        \t\t\treturn false;\r\n        \t\t}');
 		    }
@@ -137,10 +138,10 @@ describe('Error test', function() {
 
        it('type name will shown if test type function', function() {
         	try{
-        		duck.type('Person',{
+        		schema.type('Person',{
         			name: String
         		});
-		        duck({name:123}).is(duck.Person);
+		        duck({name:123}).is(schema.Person);
 		     } catch(e) {
 		         assert.equal(e.message, 'name: 123 is not compatible with String , which defined by Person : { name: String }');
 		     }
@@ -148,10 +149,10 @@ describe('Error test', function() {
 
         it('Function properties will shown if test type function', function() {
         	try{
-        		duck.type('Person',{
+        		schema.type('Person',{
         			name: Function
         		});
-		        duck({name:123}).is(duck.Person);
+		        duck({name:123}).is(schema.Person);
 		     } catch(e) {
  			    assert.equal(e.message, 'name: 123 is not compatible with Function , which defined by Person : { name: Function }');
 		     }
@@ -159,14 +160,14 @@ describe('Error test', function() {
 
         it('nest content of type will shown if test type function', function() {
         	try{
-        		duck.type('Name',{
+        		schema.type('Name',{
         			first:String,
         			last:String
         		});
-        		duck.type('Person',{
-        			name: duck.Name
+        		schema.type('Person',{
+        			name: schema.Name
         		});
-		        duck({name:{first:'foo'}}).is(duck.Person);
+		        duck({name:{first:'foo'}}).is(schema.Person);
 		    } catch(e) {
 		        assert.equal(e.message, 'name.last: undefined is not compatible with String , which defined by Person : { name: { first: String, last: String } }');
 		    }
@@ -209,34 +210,34 @@ describe('Error test', function() {
 
     describe('build-in operator:',function(){
         it('and', function() {
-            duck.type('Foo',{
+            schema.type('Foo',{
                 name: String
             });
-            duck.type('Bar',{
+            schema.type('Bar',{
                 age: Number
             });
             var t = {
                 name: 'test'
             };
             try {
-                duck(t).is(duck.and(duck.Foo, duck.Bar));
+                duck(t).is(schema.and(schema.Foo, schema.Bar));
             } catch(e) {
                 assert(/^age: undefined is not compatible with Number , which defined by inline validator/.test(e.message));
             }
         });
 
         it('or', function() {
-            duck.type('Foo',{
+            schema.type('Foo',{
                 name: String
             });
-            duck.type('Bar',{
+            schema.type('Bar',{
                 age: Number
             });
             var t = {
                 abc: 'test'
             };
             try {
-                duck(t).is(duck.or(duck.Foo, duck.Bar));
+                duck(t).is(schema.or(schema.Foo, schema.Bar));
             } catch(e) {
                 assert(/^{ abc: "test" } is not compatible with or\({ name: String }, { age: Number }\) , which defined by inline validator :/.test(e.message));
             }
@@ -244,7 +245,7 @@ describe('Error test', function() {
 
         it('NULL', function() {
             try {
-                duck(1).is(duck.NULL);
+                duck(1).is(schema.NULL);
             } catch(e) {
                 assert(/^1 is not compatible with NULL , which defined by NULL : NULL/.test(e.message));
             }
@@ -252,7 +253,7 @@ describe('Error test', function() {
 
         it('UNDEFINED', function() {
             try {
-                duck(1).is(duck.UNDEFINED);
+                duck(1).is(schema.UNDEFINED);
             } catch(e) {
                 assert(/^1 is not compatible with UNDEFINED , which defined by UNDEFINED : UNDEFINED/.test(e.message));
             }
@@ -260,7 +261,7 @@ describe('Error test', function() {
 
         it('optional', function() {
             try {
-                duck(1).is(duck.optional(String));
+                duck(1).is(schema.optional(String));
             } catch(e) {
                 assert(/^1 is not compatible with optional\(String\) , which defined by inline validator :/.test(e.message));
             }
@@ -269,7 +270,7 @@ describe('Error test', function() {
         it('asPrototype',function() {
             var Foo = {name:'123'};
             try {
-                duck({}).is(duck.asPrototype(Foo));
+                duck({}).is(schema.asPrototype(Foo));
             } catch(e) {
                 assert.equal('{  } is not compatible with asPrototype({ name: "123" }) , which defined by inline validator : asPrototype({ name: "123" })',e.message);
             }
@@ -277,11 +278,11 @@ describe('Error test', function() {
         });
 
         it('parameterize',function() {
-            duck.type('VARCHAR', duck.parameterize(function(value, length) {
+            schema.type('VARCHAR', schema.parameterize(function(value, length) {
                 return duck(value).is(String) && value.length <= length;
             }));
             try {
-                duck('1234').is(duck.VARCHAR(2));
+                duck('1234').is(schema.VARCHAR(2));
             } catch(e) {
                 assert.equal('"1234" is not compatible with VARCHAR(2) , which defined by inline validator : VARCHAR(2)',e.message);
             }
@@ -291,21 +292,21 @@ describe('Error test', function() {
 
 	describe('array error message:',function(){
         it('complicate', function() {
-        	duck.type('Level', function(value) {
+        	schema.type('Level', function(value) {
         		return duck(value).is(Number) && value % 1 === 0 && value >= 0;
         	});
-        	duck.type('Skill', {
+        	schema.type('Skill', {
         		name: String,
-        		level: duck.Level
+        		level: schema.Level
         	});
-        	duck.type('Person', {
+        	schema.type('Person', {
         		code: String,
         		name: {
         			first: String,
         			last: String
         		},
         		birthday: Date,
-        		skills:[duck.Skill]
+        		skills:[schema.Skill]
         	})
 
         	var p1 = {
@@ -327,7 +328,7 @@ describe('Error test', function() {
         		}]
         	};
         	
-        	assert(duck(p1).is(duck.Person));
+        	assert(duck(p1).is(schema.Person));
 
         	var p2 = {
         		code: 10001,
@@ -348,7 +349,7 @@ describe('Error test', function() {
         		}]
         	};
 			try{
-		        duck(p2).is(duck.Person);
+		        duck(p2).is(schema.Person);
 		    } catch(e) {
 		        assert(/^code: 10001 is not compatible with String , which defined by Person :/.test(e.message));
 		    }
@@ -371,7 +372,7 @@ describe('Error test', function() {
         	};
 
         	try{
-		        duck(p3).is(duck.Person);
+		        duck(p3).is(schema.Person);
 		    } catch(e) {
 		        assert(/^name.last: undefined is not compatible with String , which defined by Person :/.test(e.message));
 		    }
@@ -395,7 +396,7 @@ describe('Error test', function() {
         		}]
         	};
         	try{
-		        duck(p4).is(duck.Person);
+		        duck(p4).is(schema.Person);
 		    } catch(e) {
 		        assert(/^skills\[2\].level: "1" is not compatible with Level , which defined by Person/.test(e.message));
 		    }    	

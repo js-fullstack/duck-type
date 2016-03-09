@@ -1,57 +1,58 @@
 describe('generate', function() {
-	var duck = duckType.create();
+    var schema = duckType.create();
+    var duck = schema.assert;
 	it('happy path for build in', function() {
-		assert(duck(duck.generate(String)).is(String));
-		assert(duck(duck.generate(Number)).is(Number));
-		assert(duck(duck.generate(Object)).is(Object));
-		assert(duck(duck.generate(Boolean)).is(Boolean));
-		assert(duck(duck.generate(Date)).is(Date));
-		assert(duck(duck.generate(RegExp)).is(RegExp));
-		assert(duck(duck.generate(Array)).is(Array));
+		assert(duck(schema.generate(String)).is(String));
+		assert(duck(schema.generate(Number)).is(Number));
+		assert(duck(schema.generate(Object)).is(Object));
+		assert(duck(schema.generate(Boolean)).is(Boolean));
+		assert(duck(schema.generate(Date)).is(Date));
+		assert(duck(schema.generate(RegExp)).is(RegExp));
+		assert(duck(schema.generate(Array)).is(Array));
 	});
 
 	it('support []', function() {
-		assert(duck(duck.generate([])).is([]));
-		assert(duck(duck.generate([Number,String])).is([Number,String]));
-		assert(duck(duck.generate([Number])).is([Number]));
+		assert(duck(schema.generate([])).is([]));
+		assert(duck(schema.generate([Number,String])).is([Number,String]));
+		assert(duck(schema.generate([Number])).is([Number]));
 	});
 
 	it('support {}', function() {
-		duck.type('Person',{
+		schema.type('Person',{
 			name: {first:String, last:String},
 			age: Number,
 			skill: [String]
 		});
-		assert(duck(duck.generate(duck.Person)).is(duck.Person));
+		assert(duck(schema.generate(schema.Person)).is(schema.Person));
 	});
 
 	it('support constructor', function() {
 		function Person() {}
-		assert(duck(duck.generate(Person)).is(Person));
+		assert(duck(schema.generate(Person)).is(Person));
 	});
 
 	it('support asPrototype',function() {
-		duck.type('Foo',duck.asPrototype({
+		schema.type('Foo',schema.asPrototype({
 			name: 'hello',
 			age: 123
 		}));
-		duck(duck.generate(duck.Foo)).is(duck.Foo);
+		duck(schema.generate(schema.Foo)).is(schema.Foo);
 	});
 
 	it('support undefined and null', function() {
-		assert(duck(duck.generate(duck.UNDEFINED)).is(duck.UNDEFINED));
-		assert(duck(duck.generate(duck.NULL)).is(duck.NULL));
+		assert(duck(schema.generate(schema.UNDEFINED)).is(schema.UNDEFINED));
+		assert(duck(schema.generate(schema.NULL)).is(schema.NULL));
 	})
 
 	it('support valiation function', function() {
-		duck.type('Test',duck.optional(String));
-		assert(duck(duck.generate(duck.Test)).is(duck.Test));
+		schema.type('Test',schema.optional(String));
+		assert(duck(schema.generate(schema.Test)).is(schema.Test));
 	});
 
 	it('support and, or',function() {
-		duck.type('OrTest', duck.or(String,Number,Date));
-		assert(duck(duck.generate(duck.OrTest)).is(duck.OrTest));
-		duck.type('AndTest', duck.and({name:String},{age:Number}));
-		assert(duck(duck.generate(duck.AndTest)).is(duck.AndTest));
+		schema.type('OrTest', schema.or(String,Number,Date));
+		assert(duck(schema.generate(schema.OrTest)).is(schema.OrTest));
+		schema.type('AndTest', schema.and({name:String},{age:Number}));
+		assert(duck(schema.generate(schema.AndTest)).is(schema.AndTest));
 	});
 });

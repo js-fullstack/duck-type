@@ -1,5 +1,6 @@
 describe('duck-type', function() {
-    var duck = duckType.create();
+    var schema = duckType.create();
+    var duck = schema.assert;
     describe('base function', function () {
         it('should a function as node module', function () {
             assert.equal(typeof duck,'function');
@@ -13,7 +14,7 @@ describe('duck-type', function() {
         });
 
         it('support undefined', function() {
-            assert(duck(undefined).is(duck.UNDEFINED));
+            assert(duck(undefined).is(schema.UNDEFINED));
             assert.throws(function(){
                 duck(undefined).is(undefined);
             });
@@ -35,13 +36,13 @@ describe('duck-type', function() {
         });
 
         it('support duck.type.UNDEFINED', function() {
-            assert(duck(undefined).is(duck.UNDEFINED));
+            assert(duck(undefined).is(schema.UNDEFINED));
         });
 
         it('support duck.type.NULL', function() {
-            assert(duck(null).is(duck.NULL));         
+            assert(duck(null).is(schema.NULL));         
             assert.throws(function() {
-                duck(123).is(duck.NULL);
+                duck(123).is(schema.NULL);
             });
         });
     });
@@ -140,13 +141,13 @@ describe('duck-type', function() {
             };
 
             var foo = Object.create(Foo);
-            assert(duck(foo).is(duck.asPrototype(Foo)));
+            assert(duck(foo).is(schema.asPrototype(Foo)));
 
             var bar = Object.create(foo);
-            assert(duck(bar).is(duck.asPrototype(Foo)));
+            assert(duck(bar).is(schema.asPrototype(Foo)));
 
             assert.throws(function() {
-                duck({name:'test'}).is(duck.asPrototype(Foo));
+                duck({name:'test'}).is(schema.asPrototype(Foo));
             })
         })
     });
@@ -336,7 +337,7 @@ describe('duck-type', function() {
             assert(duck([1,2,3]).is([Number]));
             assert(duck(['test','hello']).is([String]));
             assert(duck([]).is([String]));
-            assert(duck([1,'ok',undefined]).is([Number,String,duck.UNDEFINED]));
+            assert(duck([1,'ok',undefined]).is([Number,String,schema.UNDEFINED]));
 
             assert.throws(function(){
                 duck([1,null,3]).is([Number]);
@@ -375,7 +376,7 @@ describe('duck-type', function() {
         });
 
         it('',function() {
-            duck.type('Foo', {name:String});
+            schema.type('Foo', {name:String});
 
             var something1 = {
                 name: 'bar',
@@ -389,11 +390,11 @@ describe('duck-type', function() {
             var something2 = {
                 age:123
             };
-            duck(something1).is(duck.Foo);
+            duck(something1).is(schema.Foo);
 
             duck(something1).is({resource: {owner:{name:Object}}});
             assert.throws(function() {
-                duck(something2).is(duck.Foo);
+                duck(something2).is(schema.Foo);
             })
 
 
@@ -403,39 +404,39 @@ describe('duck-type', function() {
     describe('type define', function () {
         it('happy path: Short', function() {
             //define type Short
-            duck.type('Short',function(value) {
+            schema.type('Short',function(value) {
                 return duck(value).is(Number) && 
                     value % 1 === 0 &&
                     value <= 65536 &&
                     value > -65535
             });
 
-            assert(duck(1232).is(duck.Short));
-            assert(duck(1232).is(duck.Short));
+            assert(duck(1232).is(schema.Short));
+            assert(duck(1232).is(schema.Short));
 
             assert.throws(function(){
-                duck(65537).is(duck.Short);
+                duck(65537).is(schema.Short);
             });
             assert.throws(function(){
-                duck('').is(duck.Short);
+                duck('').is(schema.Short);
             });
             assert.throws(function(){
-                duck(true).is(duck.Short);
+                duck(true).is(schema.Short);
             });
         });
 
         it('define Customize type, and use it as properity of Object', function() {
             //define type Short
-            duck.type('Short',function(value) {
+            schema.type('Short',function(value) {
                 return duck(value).is(Number) && 
                     value % 1 === 0 &&
                     value <= 65536 &&
                     value > -65535
             });
 
-            duck.type('Person',{
+            schema.type('Person',{
                 name: String,
-                salary: duck.Short
+                salary: schema.Short
             });
 
             var p1 = {
@@ -448,27 +449,27 @@ describe('duck-type', function() {
                 salary:1234567
             }
 
-            assert(duck(p1).is(duck.Person));
+            assert(duck(p1).is(schema.Person));
             assert.throws(function(){
-                duck(p2).is(duck.Person);
+                duck(p2).is(schema.Person);
             });
         });
 
         it('Complex type define',function() {
-            duck.type('ID',function(value) { return duck(value).is(Number) && value > 0 && value % 1 === 0; });
-            duck.type('Year',function(value) { return duck(value).is(Number) && value < 9999 && value >= 0; });
-            duck.type('Month',function(value) { return duck(value).is(Number) && value < 12 && value >= 0; });
-            duck.type('ResourceDemand',{
-                year: duck.Year,
-                month: duck.Month,
+            schema.type('ID',function(value) { return duck(value).is(Number) && value > 0 && value % 1 === 0; });
+            schema.type('Year',function(value) { return duck(value).is(Number) && value < 9999 && value >= 0; });
+            schema.type('Month',function(value) { return duck(value).is(Number) && value < 12 && value >= 0; });
+            schema.type('ResourceDemand',{
+                year: schema.Year,
+                month: schema.Month,
                 quantity: Number
             });
-            duck.type('Proposal',{
-                id: duck.ID,
+            schema.type('Proposal',{
+                id: schema.ID,
                 startDate: Date,
                 endDate: Date,
                 description: String,
-                resourceDemands:[duck.ResourceDemand]
+                resourceDemands:[schema.ResourceDemand]
             });
 
             var p1 = {
@@ -487,35 +488,35 @@ describe('duck-type', function() {
                 }]
             };
 
-            assert(duck(p1).is(duck.Proposal));
+            assert(duck(p1).is(schema.Proposal));
 
         });
 
         it('alias of Number', function() {
-            duck.type('MyNumber',Number);
+            schema.type('MyNumber',Number);
 
-            assert(duck(123).is(duck.MyNumber));
+            assert(duck(123).is(schema.MyNumber));
             assert.throws(function() {
-                duck(true).is(duck.MyNumber);
+                duck(true).is(schema.MyNumber);
             });
         });
     });
 
     describe('or, and, optional, nullable', function() {
         it('support or', function() {
-            assert(duck(1).is(duck.or(Number,String)));
-            assert(duck('123').is(duck.or(Number,String)));
-            assert(duck(123).is(duck.or(Number,duck.UNDEFINED)));
-            assert(duck().is(duck.or(Number,duck.UNDEFINED)));
+            assert(duck(1).is(schema.or(Number,String)));
+            assert(duck('123').is(schema.or(Number,String)));
+            assert(duck(123).is(schema.or(Number,schema.UNDEFINED)));
+            assert(duck().is(schema.or(Number,schema.UNDEFINED)));
             assert.throws(function(){
-                duck(true).is(duck.or(Number,String));
+                duck(true).is(schema.or(Number,String));
             });
         });
 
         it('support and',function() {
-            duck.type('Foo', {name:String});
-            duck.type('Bar',{age:Number});
-            duck.type('Both',duck.and(duck.Foo,duck.Bar));
+            schema.type('Foo', {name:String});
+            schema.type('Bar',{age:Number});
+            schema.type('Both',schema.and(schema.Foo,schema.Bar));
 
             var ok = {
                 name:'hello',
@@ -524,20 +525,20 @@ describe('duck-type', function() {
 
             var error1 = {name:'hello'};
             var error2 = {age:123};
-            assert(duck(ok).is(duck.Both));
-            assert(duck(ok).is(duck.and(duck.Foo,duck.Bar)));
+            assert(duck(ok).is(schema.Both));
+            assert(duck(ok).is(schema.and(schema.Foo,schema.Bar)));
             assert.throws(function(){
-                duck(error1).is(duck.Both);
+                duck(error1).is(schema.Both);
             });
             assert.throws(function(){
-                duck(error2).is(duck.Both);
+                duck(error2).is(schema.Both);
             });
         });
 
         it('support optional', function() {
-            assert(duck(undefined).is(duck.optional(Number)));
-            assert(duck({name:'test'}).is({name:String, age: duck.optional(Number)}));
-            assert(duck({name:'test', age:12345}).is({name:String, age: duck.optional(Number)}));
+            assert(duck(undefined).is(schema.optional(Number)));
+            assert(duck({name:'test'}).is({name:String, age: schema.optional(Number)}));
+            assert(duck({name:'test', age:12345}).is({name:String, age: schema.optional(Number)}));
             assert.throws(function() {
                 duck({name:'test', age:'12345'}).is({name:String, age: duck.optional(Number)});
             });
@@ -546,13 +547,14 @@ describe('duck-type', function() {
 });
 
 describe('instance',function() {
-    var duck = duckType.create();
+    var schema = duckType.create();
+    var duck = schema.assert;
     it('happy path', function() {
-        var duck1 = duckType.create();
-        duck1.type('HELLO',String);
-        var duck2 = duckType.create();
-        assert(duck1('hello').is(duck1.HELLO));
-        assert(duck2('hello').is(duck1.HELLO));
+        var schema1 = duckType.create();
+        schema1.type('HELLO',String);
+        var schema2 = duckType.create();
+        assert(schema1.assert('hello').is(schema1.HELLO));
+        assert(schema2.assert('hello').is(schema1.HELLO));
     });
 
     it('import happy path', function() {
@@ -572,21 +574,22 @@ describe('instance',function() {
             });
             return xyz;
         }
-        var duck = duckType.create();
+        var schema = duckType.create();
         var xyz = exportXyz();
-        duck.type('Test',function(v) {
+        schema.type('Test',function(v) {
             return duck(v).is(xyz.Person);
         })
 
-        duck({name:'hello'}).is(duck.Test);
+        schema.assert({name:'hello'}).is(schema.Test);
     });
 
     
 });
 
 describe('partially check',function() {
-    var duck = duckType.create();
-    duck.type('Person',{
+    var schema = duckType.create();
+    var duck = schema.assert;
+    schema.type('Person',{
         name: {first:String, last:String},
         age: Number
     });
@@ -596,46 +599,48 @@ describe('partially check',function() {
         last:'bar'
     };
 
-    assert(duck(name).is(duck.Person.name));
-    assert(duck(123).is(duck.Person.age));
+    assert(duck(name).is(schema.Person.name));
+    assert(duck(123).is(schema.Person.age));
 });
 
 describe('parameterize',function() {
-    var duck = duckType.create();
+    var schema = duckType.create();
+    var duck = schema.assert;
 
-    duck.type('Range', duck.parameterize(function(value, a, b){
+    schema.type('Range', schema.parameterize(function(value, a, b){
         return duck(value).is(Number) && value >= a && value <=b; 
     },function(a, b){
         return a + Math.random() * (b - a);
     }));
 
-    assert(duck(3).is(duck.Range(2,4)));
+    assert(duck(3).is(schema.Range(2,4)));
     assert.throws(function(){
         duck(5).is(duck.Range(2,4));
     });
-    assert(duck(duck.generate(duck.Range(2,4))).is(duck.Range(2,4)));
+    assert(duck(schema.generate(schema.Range(2,4))).is(schema.Range(2,4)));
 });
 
 describe('mute', function() {
-    var duck = duckType.create();
+    var schema = duckType.create();
+    var duck = schema.assert;
     it('duck(xxx).is(XXX) will not throw Error when it as a validator executed in context duck.type', function() {
         var checkpoint = false;
-        duck.type('Integer', function(value) {
+        schema.type('Integer', function(value) {
             var result = duck(value).is(Number) && value % 1 === 0;
             checkpoint = true;
             return result;
         });
 
-        assert(duck(123).is(duck.Integer));
+        assert(duck(123).is(schema.Integer));
         assert(checkpoint);
         assert.throws(function() {
-            duck('123').is(duck.Integer);
+            duck('123').is(schema.Integer);
         });
     });
 
     it('mute block', function() {
         var checkpoint = false;
-        duck.mute(function(){
+        schema.mute(function(){
             assert.equal(duck(2).is(String), false);
             checkpoint = true;
         });
@@ -644,12 +649,12 @@ describe('mute', function() {
     
     it('mute true/false', function() {
         var checkpoint = false;
-        duck.mute(true);
+        schema.mute(true);
         try{
             assert.equal(duck(2).is(String), false);
             checkpoint = true;
         } finally {
-            duck.mute(false);
+            schema.mute(false);
         }
         
         assert(checkpoint);
