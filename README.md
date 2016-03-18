@@ -42,14 +42,22 @@ Let us get start with validation:
 
 ```JavaScript
     schema.assert(1).is(String);   //throw Error
+    schema(String).match(1);       //throw Error
+
     schema.assert('1').is(String); //passed, return true
+    schema(String).match('1');     //passed, return true
 ```
 
 We also can verify many parameters at once, like:
 
 ```JavaScript
-    schema.assert(x, y).are(String, Number);	
+    schema.assert(x, y).are(String, Number);  
+    schema(String, Number).match(x, y);  
 ```
+
+`schema.assert(...).is(...)` and `schema.assert(...).are(...)` eaquals `schema(...).match(...)`, it is just different coding style.
+
+We will use `schema.assert` in flowing example:
 
 #### Example 2
 

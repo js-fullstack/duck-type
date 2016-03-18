@@ -1,9 +1,10 @@
 ### Content Table
 * [Preface](#preface)
-* [assert, is, are](#assert-is-are)
+* [assert, is, are, match](#assert-is-are-match)
   * [assert](#assert)
   * [is](#is)
   * [are](#are)
+  * [match](#are)
 * [Build-In type](build-In-type)
 * [Null & undefined](#null--undefined)
   * [NULL](#null)
@@ -79,33 +80,43 @@ It also support **"requirejs"**.
 
 Here `schema` was just a variable, you can change it to any variable which you like, but we just use ***"schema"*** to reference it in following document. It is the entry point of our library. `x`,`y`,`z`... will be used as reference variable which need to be verify.
 
-### assert, is, are
+### assert, is, are, match
 
 #### assert
 
 ```JavaScript
-  schema.assert(x);  // create a Duck object, which will be used to do judgement
-  schema(x);         // as same as schema.assert, also return Duck object, we will use this pattern in other examples. 
+  schema.assert(x);  // create a Schema object, which will be used to do judgement
 ```
 
 
 #### is
 
-`Duck.is` is used to verify the type of single variable. Example:
+`Schema.is` is used to verify the type of single variable. Example:
 ```JavaScript
-  schema(x).is(Number);   // the statement will return true if x a is Number; 
+  schema.assert(x).is(Number);   // the statement will return true if x a is Number; 
 ```
 
 The "true" will be return if test passed. If test is not passed, the **"Error" will be thrown** in most situation except in ***"mute block"***, we will introduce "mute block" later, see [mute](#mute).
 
 #### are
 
-`Duck.are` is used to verify multiple variables. Example:
+`Schema.are` is used to verify multiple variables. Example:
 
 ```JavaScript
   // the statement will return true if x a is Number and y is a String, and z is a Date ;
-  schema(x, y, z).are(Number, String, Date);   
+  schema.assert(x, y, z).are(Number, String, Date);   
 ```
+
+#### match
+
+We can use different coding style to do same things
+
+```JavaScript
+  schema(Number).is(x);                          // it equals with schema(Number).is(x)
+  schema(Number, String, Date).match(x, y, z);   // it equals with schema.assert(x, y, z).are(Number, String, Date)
+```
+
+As we have seen, `schema(...).match(...)` is as same as `schema.assert(...).is(...) `, we can chosse the style which we like.
 
 
 ### Build-In type
@@ -113,14 +124,14 @@ The "true" will be return if test passed. If test is not passed, the **"Error" w
 The following Build-In was supported:
 
 ```JavaScript
-  schema(x).is(String);     // both 'hello' or new String('hello') can be passed
-  schema(x).is(Number);     // both 1, 1.1 or new Number(1) can be passed
-  schema(x).is(Boolean);    // both true, or new Boolean(true) can be passed
-  schema(x).is(Date);       // var d = new Date(), d can be passed
-  schema(x).is(Array);      // any array will be passed
-  schema(x).is(Object);     // any thing except "undefined" can be passed, include {}, new Object(), null,1,'hello',new Date(), even function(){}
-  schema(x).is(Function);   // any function can be passed.
-  schema(x).is(RegExp);     // both /^\.*$/ or new RegExp('^\.*$') can be passed
+  schema.assert(x).is(String);     // both 'hello' or new String('hello') can be passed
+  schema.assert(x).is(Number);     // both 1, 1.1 or new Number(1) can be passed
+  schema.assert(x).is(Boolean);    // both true, or new Boolean(true) can be passed
+  schema.assert(x).is(Date);       // var d = new Date(), d can be passed
+  schema.assert(x).is(Array);      // any array will be passed
+  schema.assert(x).is(Object);     // any thing except "undefined" can be passed, include {}, new Object(), null,1,'hello',new Date(), even function(){}
+  schema.assert(x).is(Function);   // any function can be passed.
+  schema.assert(x).is(RegExp);     // both /^\.*$/ or new RegExp('^\.*$') can be passed
 
 ```
 
@@ -131,7 +142,7 @@ The following Build-In was supported:
 `null` can be verified by `schema.NULL`. Example:
 
 ```JavaScript
-  schema(x).is(schema.NULL);
+  schema.assert(x).is(schema.NULL);
 ```
 
 #### UNDEFINED
@@ -139,7 +150,7 @@ The following Build-In was supported:
 `undefined` can be verified by `schema.UNDEFINED`. Example:
 
 ```JavaScript
-  schema(x).is(schema.UNDEFINED);
+  schema.assert(x).is(schema.UNDEFINED);
 ```
 
 ### Class/Constructor & Prototype 
@@ -162,7 +173,7 @@ In JavaScript, a function can be "Constructor". Example:
 This can be supported in "duck-type". Example:
 
 ```JavaScript
-  schema(x).is(Person);   //Person is Constructor function
+  schema.assert(x).is(Person);   //Person is Constructor function
 ```
 
 In fact, all of build-in type were implemented by Constructor function verify.
@@ -188,9 +199,9 @@ Inherited in JavaScript could be like this:
 It has been supported like:
 
 ```JavaScript
-  duck(x).is(Student);     // it will be passed;
-  duck(x).is(Person);      // it also will be passed;
-  duck(x).is(Object);      // it will passed;
+  schema.assert(x).is(Student);     // it will be passed;
+  schema.assert(x).is(Person);      // it also will be passed;
+  schema.assert(x).is(Object);      // it will passed;
 ```
 
 ### Validation function
@@ -200,14 +211,14 @@ It has been supported like:
 We can define a callback function as a validator. For example, we want make sure variable "x" should be positive number:
 
 ```JavaScript
-  duck(x).is(function(value) {                     // the value of "x" will be passed to parameter "value" when validator function was called.
-    return duck(value).is(Number) && value > 0;    // the "true/false" must be return in validator function
+  schema.assert(x).is(function(value) {                     // the value of "x" will be passed to parameter "value" when validator function was called.
+    return schema.assert(value).is(Number) && value > 0;    // the "true/false" must be return in validator function
   }); 
 ```
 ***Comments***
 * value will be passed as target object which is waiting for verifying.
 * true/false should be return in validator function.
-* `Duck.is` or `Duck.are` can be used in validator function, it will return true if test passed, **BUT**, it will return false if test failure rather than thrown any 'Error', just like in **"mute block"**.
+* `Schema.is` or `Schema.are` can be used in validator function, it will return true if test passed, **BUT**, it will return false if test failure rather than thrown any 'Error', just like in **"mute block"**.
 * How can we distinguish **"Constructor function"** and **"validator call back function"**, **"Constructor function"** has **"name"**, **"validator call back function"** must be a anonymous function. Or you can define **"validator call back function"** by `schema.validator`, see ["validator"](#validator)
 
 ### Array
@@ -217,7 +228,7 @@ We can define a callback function as a validator. For example, we want make sure
 #### Pattern one
 
 ```JavaScript
-  schema(x).is([]);     // it is as same as schema(x).is(Array);
+  schema.assert(x).is([]);     // it is as same as schema.assert(x).is(Array);
 ```
 
 The test will be passed, if x is an instance of Array, don't care whether length of the array or type of each element in the array.
@@ -225,7 +236,7 @@ The test will be passed, if x is an instance of Array, don't care whether length
 #### Pattern two
 
 ```JavaScirpt
-  schema(x).is([Number]);  // any type define which we mentioned above can put into here, like schema(x).is(String)
+  schema.assert(x).is([Number]);  // any type define which we mentioned above can put into here, like schema.assert(x).is(String)
 ```
 
 This is equivalent of Array definition in 'Java'. The test will be passed if x is an instance of Array, **and** each element of the array must be a Number (empty will also be passed).
@@ -233,13 +244,13 @@ This is equivalent of Array definition in 'Java'. The test will be passed if x i
 #### Pattern three
 
 ```JavaScript
-  schema(x).is([String, Number, Date]);
+  schema.assert(x).is([String, Number, Date]);
 ```
 
 The test will be passed if "x" is an instance of Array, and the length of the array must great or equals 3, the type of the first element must be a String, the second must be a Number, the third must be a Date.
 
 ```JavaScript
-  schema(x).is([[String,Number]]); // it also support 'nest' array
+  schema.assert(x).is([[String,Number]]); // it also support 'nest' array
 ``` 
  
 ### Object
@@ -247,7 +258,7 @@ The test will be passed if "x" is an instance of Array, and the length of the ar
 #### Basic
 "duck-type" support Object in **a natural way**, Example:
 ```JavaScript
-  schema(x).is({
+  schema.assert(x).is({
     name: String,
     birthday: Date,
     address: String,
@@ -282,7 +293,7 @@ That is so-call **"duck type test"**.
 Complicated Object Structure was supported, for example:
 
 ```JavaScript
-  schema(x).is({
+  schema.assert(x).is({
     name: {                     // property "name" is a "Nest Object" declaration.
       first: String,
       last: String
@@ -299,7 +310,7 @@ Complicated Object Structure was supported, for example:
 
 #### Inline validation
 
-All of examples above, `schema(x).is(...)` validate type/structure of x directly, we call them **"Inline validation"**.
+All of examples above, `schema.assert(x).is(...)` validate type/structure of x directly, we call them **"Inline validation"**.
 
 #### Type define
 
@@ -318,10 +329,10 @@ Relative to **"Inline validation"**, we also can **"Predefine Type"**, then reus
 
 Here, we defined a "duck type" named "Person", and an object can be seen as a "Person" is it has properties "name", "age", "birthday", and types of them must be "String", "Number", "Date", and it also must have method named "sayHello"   
 
-After type define, we can reference it by **"schema.XXX"**, "XXX" was name of type, for example continue above:
+After type define, we can reference it by **"schema.assert.XXX"**, "XXX" was name of type, for example continue above:
 
 ```JavaScript
-  schema(x).is(schema.Person);
+  schema.assert(x).is(schema.Person);
 ```
 
 There is a **convention** when naming type in "duck-type", the name of type must be a legal variable in JavaScript, and first character must be a **capital letter**
@@ -330,7 +341,7 @@ There is a **convention** when naming type in "duck-type", the name of type must
 
 ```JavaScript
   schema.type('Integer', function() {
-    return schema(value).is(Number) &&
+    return schema.assert(value).is(Number) &&
       value % 1 === 0 &&
       value >= -2147483648 && value <= 2147483647
   }); 
@@ -339,7 +350,7 @@ There is a **convention** when naming type in "duck-type", the name of type must
 Know, we can use it like:
 
 ```JavaScript
-  schema(x).is(schema.Integer);
+  schema.assert(x).is(schema.Integer);
 ```
 
 #### Alias
@@ -406,7 +417,7 @@ In some scenario, we have defined a "Big" type already, for example:
 But what we deal with in current program is just a part of "Person", for example, name of "Person":
 
 ```JavaScript
-  schema(x).is(schema.Person.name)   // thus, "first: String" and "last: String" are required properties of x. 
+  schema.assert(x).is(schema.Person.name)   // thus, "first: String" and "last: String" are required properties of x. 
 ```
 
 We call verification like this **"Partially"**. It is useful when we deal with "Type" which defined by other team.
@@ -443,7 +454,7 @@ We can use `schema.and` to verify an object is compatible with multiple type def
     save: function() {...}
   }
 
-  schema(person).is(schema.and(schema.Foo, schema.Savable));  // it will be passed. 
+  schema.assert(person).is(schema.and(schema.Foo, schema.Savable));  // it will be passed. 
 ```
 
 #### or
@@ -455,7 +466,7 @@ Sometimes, the parameters can be be an object with different type, many examples
      ....
   });
 
-  schema(x).is(schema.or(String, schema.Config));    // it will be passed, if x is either a String or a Config object  
+  schema.assert(x).is(schema.or(String, schema.Config));    // it will be passed, if x is either a String or a Config object  
 ```
 
 #### optional
@@ -474,7 +485,7 @@ Sometimes, the parameters can be be an object with different type, many examples
 Like `schema.optional` above, nullable means value can be null or some type:
 
 ```JavaScript
-  schema(x).is(schema.nullable(String));  // it can be passed if x is a String, or null. 
+  schema.assert(x).is(schema.nullable(String));  // it can be passed if x is a String, or null. 
 ```
 **Note:** `nullable` should be used unusual in JavaScript, `optional` should be seen often. 
 
@@ -484,7 +495,7 @@ The type definition can include parameter, for example:
 
 ```JavaScript
   schema.type('VARCHAR', schema.parameterize(function(value, length) {              // here, 'VARCHAR' was defined
-    return schema(value).is(String) && value.lenght <= lenght;
+    return schema.assert(value).is(String) && value.lenght <= lenght;
   }));
 
   duck(x).is(VARCHAR(20))                                     // the value '20' will be passed to validation function as agument 'lenght', and 'x' will be pass to validation function as argument value.
@@ -497,7 +508,7 @@ In other example, `NUMBER` could be defined with min and max value.
     return duck(value).is(String) && value <= max && value >= min;
   }));
 
-  schema(x).is(VARCHAR(20))                                     // the value '20' will be passed to validation function as argument 'length', and 'x' will be pass to validation function as argument value.
+  schema.assert(x).is(VARCHAR(20))                                     // the value '20' will be passed to validation function as argument 'length', and 'x' will be pass to validation function as argument value.
 ```
 
 #### asPrototype
@@ -516,18 +527,18 @@ Sometimes, the object was create from a prototype object, like:
 `schema.asPrototype` was designed as to verify prototype. Example:
 
 ```JavaScript
-  schema(x).is(schema.asPrototype(Person));
+  schema.assert(x).is(schema.asPrototype(Person));
 ``` 
 
 ### Mute
 
-`schema.is` or `schema.are` will throw `IncompatibleTypeError` if duck type test failed. It also can be return false, if we use **"mute function"** or **"mute true/false"**
+`schema.assert.is` or `schema.assert.are` will throw `IncompatibleTypeError` if duck type test failed. It also can be return false, if we use **"mute function"** or **"mute true/false"**
 
 #### mute(function)
 
 ```JavaScript
   schema.mute(function() {      // this is mute function, or so-called mute block
-    if(schema(x).is(String)) {  // it will return false, rather than throw `IncompatibleTypeError`
+    if(schema.assert(x).is(String)) {  // it will return false, rather than throw `IncompatibleTypeError`
       //do something
     } else {
       ...
@@ -540,7 +551,7 @@ Sometimes, the object was create from a prototype object, like:
 ```JavaScript
   schema.mute(true);
   try {
-    if(schema(x).is(String)) {  // it will return false, rather than throw `IncompatibleTypeError`
+    if(schema.assert(x).is(String)) {  // it will return false, rather than throw `IncompatibleTypeError`
       //do something
     } else {
       ...
@@ -622,7 +633,7 @@ In module B, we need use typed defined in module A:
 ```
   var moduleA = require('a.js');
   ...
-  schema(x).is(moduleA.Person);  // it can work;
+  schema.assert(x).is(moduleA.Person);  // it can work;
 
   ...
 
