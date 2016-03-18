@@ -90,7 +90,7 @@
     }
 
     function _isConstructor(type) {
-        return typeof type === 'function' && _getFnName(type) !== "";
+        return typeof type === 'function' && _getFnName(type) !== '';
     }
 
     function _isValiderTypeName(name) {
@@ -446,7 +446,7 @@
                     var _schema = _domain.assert.apply(undefined, targets);
                     return _schema.are.apply(_schema, typeDefines);
                 }
-            }
+            };
         };
 
         _domain.assert = function () {
