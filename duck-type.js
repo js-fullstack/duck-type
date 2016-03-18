@@ -1,20 +1,20 @@
 (function() {
 	/***************************************************************
-     * Duck define
+     * Schema define
      ****************************************************************/
-    function Duck(args){
-        if(this instanceof Duck) {
+    function Schema(args){
+        if(this instanceof Schema) {
             this.values = args;
             if(args.length > 0) {
                 this.value = args[0];
             }
         } else {
-            return new Duck(Array.prototype.slice.call(arguments));
+            return new Schema(Array.prototype.slice.call(arguments));
         }
 
     }
-    Duck.prototype = {
-        is : function(type, propertiesStack) {
+    Schema.prototype = {
+        is : function(typeDefine, propertiesStack) {
             propertiesStack = propertiesStack || {
                 chain:[],
                 lastValue:undefined,
@@ -32,51 +32,51 @@
                     return result;
                 }
             };
-            if(['function','object'].indexOf(typeof type)  < 0) {
-                throw InvalidTypeError('only function or object can be type define, now type is (' + typeof type + ')');
+            if(['function','object'].indexOf(typeof typeDefine)  < 0) {
+                throw InvalidTypeError('only function or object can be type define, now type is (' + typeof typeDefine + ')');
             }
             var self = this,
                 result = mute(function() {
-                    if(_isConstructor(type)) {
-                        return _instanceof(self.value,type);
-                    } else if(typeof type === 'function') {
-                        return type(self.value, propertiesStack);
-                    } else if(Duck(type).is(Array)) {
-                        return Duck(self.value).is(Array) && (function() {
-                            if(type.length === 0) {
+                    if(_isConstructor(typeDefine)) {
+                        return _instanceof(self.value,typeDefine);
+                    } else if(typeof typeDefine === 'function') {
+                        return typeDefine(self.value, propertiesStack);
+                    } else if(Schema(typeDefine).is(Array)) {
+                        return Schema(self.value).is(Array) && (function() {
+                            if(typeDefine.length === 0) {
                                 return true;
-                            } else if(type.length === 1) {
+                            } else if(typeDefine.length === 1) {
                                 return self.value.every(function(v,i){
-                                    return propertiesStack.wrap('[' + i + ']',type[0], v, function() {
-                                        return Duck(v).is(type[0],propertiesStack);
+                                    return propertiesStack.wrap('[' + i + ']',typeDefine[0], v, function() {
+                                        return Schema(v).is(typeDefine[0],propertiesStack);
                                     });
                                 });
                             } else {
-                                return type.every(function(t,i){
+                                return typeDefine.every(function(t,i){
                                     return propertiesStack.wrap('[' + i + ']', t, self.value[i], function() {
-                                        return Duck(self.value[i]).is(t,propertiesStack);
+                                        return Schema(self.value[i]).is(t,propertiesStack);
                                     });
                                 });
                             }
                         })();
-                    } else if(Duck(type).is(Object)) {
-                        return Duck(self.value).is(Object) &&
-                            Object.keys(type).every(function(key) {
-                                return propertiesStack.wrap(key, type[key], self.value[key], function() {
-                                    return Duck(self.value[key]).is(type[key], propertiesStack);
+                    } else if(Schema(typeDefine).is(Object)) {
+                        return Schema(self.value).is(Object) &&
+                            Object.keys(typeDefine).every(function(key) {
+                                return propertiesStack.wrap(key, typeDefine[key], self.value[key], function() {
+                                    return Schema(self.value[key]).is(typeDefine[key], propertiesStack);
                                 });
                             });
                     } else {
                         return false;
                     }
                 });
-            return _returnHandle(result, self.value, type, propertiesStack);
+            return _returnHandle(result, self.value, typeDefine, propertiesStack);
         },
 
         are : function(){
             var self = this, args = Array.prototype.slice.call(arguments);
             return _returnHandle(self.values.length === args.length && args.every(function(arg,i) {
-                return Duck(self.values[i]).is(arg);
+                return Schema(self.values[i]).is(arg);
             }),self.values, args);
         }
     };
@@ -85,8 +85,12 @@
         return value !== undefined && (new Object(value) instanceof type);
     }
 
+    function _getFnName(fn) {
+        return fn.name || (fn.toString().match(/^\s*function\s*(\S*)\s*\(/)||[,''])[1];
+    }
+
     function _isConstructor(type) {
-        return typeof type === 'function' && type.name;
+        return typeof type === 'function' && _getFnName(type) !== "";
     }
 
     function _isValiderTypeName(name) {
@@ -132,17 +136,17 @@
                 return 'undefined';
             } else if(obj === null) {
                 return 'null';
-            } else if (Duck(obj).is(or(Number, Date, Boolean,RegExp))) {
+            } else if (Schema(obj).is(or(Number, Date, Boolean,RegExp))) {
                 return obj.toString();
-            } else if(Duck(obj).is(String)) {
+            } else if(Schema(obj).is(String)) {
                 return '"' + obj + '"';
-            } else if (Duck(obj).is(Function)) {
+            } else if (Schema(obj).is(Function)) {
                 return 'Function';
-            } else if(Duck(obj).is(Array)) {
+            } else if(Schema(obj).is(Array)) {
                 return '[' + obj.map(function(o){
                     return _printableValue(o);
                 }).join(',') + ']';
-            } else if(Duck(obj).is(Object)) {
+            } else if(Schema(obj).is(Object)) {
                 return '{ ' + Object.keys(obj).reduce(function(tmp, key){
                     return tmp.concat([key,_printableValue(obj[key])].join(': '));
                 },[]).join(', ') + ' }';
@@ -162,14 +166,14 @@
 
     function _printableType(type) {
         return mute(function() {
-            if (Duck(type).is(Function)) {
+            if (Schema(type).is(Function)) {
                 return type.__duck_type_error__?
                     type.__duck_type_error__(): type.name || type.toString();
-            } else if(Duck(type).is(Array)) {
+            } else if(Schema(type).is(Array)) {
                 return '[' + type.map(function(o){
                     return _printableType(o);
                 }).join(',') + ']';
-            } else if(Duck(type).is(Object)) {
+            } else if(Schema(type).is(Object)) {
                 return '{ ' + Object.keys(type).reduce(function(tmp, key){
                     return tmp.concat([key,_printableType(type[key])].join(': '));
                 },[]).join(', ') + ' }';
@@ -234,7 +238,7 @@
         var args = Array.prototype.slice.call(arguments);
         var result = function(value){
             return args.some(function(type){
-                return Duck(value).is(type);
+                return Schema(value).is(type);
             });
         };
         result.__duck_type_mocker__ = function() {
@@ -254,7 +258,7 @@
         var args = Array.prototype.slice.call(arguments);
         var result = function(value, propertiesStack){
             return args.every(function(type){
-                return Duck(value).is(type,propertiesStack);
+                return Schema(value).is(type,propertiesStack);
             });
         };
 
@@ -375,7 +379,7 @@
                 } else {
                     throw new InvalidMockHandlerError('can not mock type ' + type);
                 }
-            } else if (Duck(type).is(Array)) {
+            } else if (Schema(type).is(Array)) {
                 if(type.length === 0) {
                     return [];
                 } else if(type.length === 1) {
@@ -389,7 +393,7 @@
                         return tmp.concat(generate(type[i]));
                     },[]);
                 }
-            } else if(Duck(type).is(Object)) {
+            } else if(Schema(type).is(Object)) {
                 return Object.keys(type).reduce(function(tmp, key){
                     tmp[key] = generate(type[key]);
                     return tmp;
@@ -435,22 +439,29 @@
      *****************************************************************/
     function create() {
         var _domain = function () {
-            
+            var typeDefines = Array.prototype.slice.call(arguments);
+            return {
+                match: function() {
+                    var targets = Array.prototype.slice.call(arguments);
+                    var _schema = _domain.assert.apply(undefined, targets);
+                    return _schema.are.apply(_schema, typeDefines);
+                }
+            }
         };
 
         _domain.assert = function () {
-            return new Duck(Array.prototype.slice.call(arguments));
-        };;
+            return new Schema(Array.prototype.slice.call(arguments));
+        };
 
         _domain.type = function (type, define) {
             if(!_isValiderTypeName(type)) {
-                throw Error(type + ' is invalider type name');
+                throw Error(type + ' is invalid type name');
             }
 
             mute(function() {
                 if(_isConstructor(define)) {
                     _domain[type] = define;
-                } else if (Duck(define).is(or(Function,Array))) {
+                } else if (Schema(define).is(or(Function,Array))) {
                     define.__duck_type_name__ = type;
                     _domain[type] = define;
                 } else {
