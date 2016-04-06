@@ -360,7 +360,9 @@
             var types = ['String','Number','Boolean','Date','Function','RegExp'];
             return  _generator[types[_randomInt(types.length)]]();
         },
-        'Function': function() { return function() {};},
+        'Function': function(name) { return function() {
+            console.log('function',name,'was called by argements:',Array.prototype.slice.call(arguments));
+        };},
         'Array': function() {
             return _times(_randomInt(10)).reduce(function(tmp) {
                 return tmp.concat(_generator.Object());
@@ -369,10 +371,10 @@
         'RegExp': function() { return /.*/; }
     };
 
-    function generate(type) {
+    function generate(type, functionName) {
         var result = mute(function(){
             if(_isConstructor(type)) {
-                return _generator[type.name]?_generator[type.name](): new type();
+                return _generator[type.name]?_generator[type.name](functionName): new type();
             } else if(typeof type  === 'function') {
                 if(typeof type.__duck_type_mocker__ === 'function') {
                     return type.__duck_type_mocker__();
@@ -395,7 +397,7 @@
                 }
             } else if(Schema(type).is(Object)) {
                 return Object.keys(type).reduce(function(tmp, key){
-                    tmp[key] = generate(type[key]);
+                    tmp[key] = generate(type[key],key);
                     return tmp;
                 },{});
             }
